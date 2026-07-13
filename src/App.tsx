@@ -78,6 +78,11 @@ function App() {
           setWardData(content);
           setOrData([]);
           setOrName('');
+        } else if (res.data.target_type === 'ward_summary' && Array.isArray(res.data.content)) {
+          setTargetLabel('Ketersediaan Kamar Rawat Inap (Semua Kelas)');
+          setWardData(res.data.content); // Array of wards
+          setOrData([]);
+          setOrName('');
         } else if (res.data.target_type === 'operating_room' && res.data.content) {
           const content = res.data.content;
           const label = content.room_name || content.name || 'Kamar Operasi';
@@ -158,9 +163,11 @@ function App() {
     echoInstance
       .channel('displays')
       .listen('.WardAvailabilityChanged', (e: any) => {
-        // Only update if we're currently showing this ward class
-        if (targetType === 'ward_class' && wardData && e.bpjs_class_code === wardData.bpjs_class_code) {
+        if (targetType === 'ward_class' && wardData && !Array.isArray(wardData) && e.bpjs_class_code === wardData.bpjs_class_code) {
           setWardData((prev: any) => ({ ...prev, ...e }));
+          setLastUpdated(new Date().toLocaleTimeString('id-ID'));
+        } else if (targetType === 'ward_summary' && Array.isArray(wardData)) {
+          setWardData((prev: any[]) => prev.map(ward => ward.bpjs_class_code === e.bpjs_class_code ? { ...ward, ...e } : ward));
           setLastUpdated(new Date().toLocaleTimeString('id-ID'));
         }
       })
@@ -250,7 +257,7 @@ function App() {
         )}
 
         {/* Ward class view */}
-        {!errorMsg && targetType === 'ward_class' && wardData && (
+        {!errorMsg && targetType === 'ward_class' && wardData && !Array.isArray(wardData) && (
           <div className="ward-card">
             <div className="ward-header">
               <span className="ward-label">Status Ketersediaan Kamar Rawat Inap</span>
@@ -269,6 +276,41 @@ function App() {
               <div className="stat-box stat-box-available">
                 <span className="ward-label" style={{ color: '#34d399' }}>TERSEDIA (SISA)</span>
                 <span className="stat-value stat-value-available">{wardData.bed_available}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Ward summary view (Auto-scroll list of all wards) */}
+        {!errorMsg && targetType === 'ward_summary' && wardData && Array.isArray(wardData) && (
+          <div className="ward-summary-card">
+            <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+              <span className="ward-label" style={{ color: '#38bdf8' }}>Summary Rawat Inap</span>
+              <h2 className="or-name">{targetLabel}</h2>
+            </div>
+            
+            <div className="table-container summary-scroll-container">
+              <div className="summary-scroll-content">
+                <table className="stb-table">
+                  <thead>
+                    <tr>
+                      <th>KELAS KAMAR</th>
+                      <th>TOTAL KAPASITAS</th>
+                      <th>TERISI</th>
+                      <th>TERSEDIA</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {wardData.map((ward, idx) => (
+                      <tr key={idx}>
+                        <td style={{ fontWeight: 'bold', color: 'white', fontSize: '1.2rem' }}>{ward.class_name || ward.name}</td>
+                        <td style={{ fontSize: '1.2rem' }}>{ward.bed_total}</td>
+                        <td style={{ fontSize: '1.2rem', color: '#f87171' }}>{ward.bed_occupied}</td>
+                        <td style={{ fontSize: '1.2rem', color: '#34d399', fontWeight: 'bold' }}>{ward.bed_available}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
