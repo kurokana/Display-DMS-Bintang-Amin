@@ -12,10 +12,10 @@ declare global {
 
 // Config variables
 const MIDDLEWARE_URL = import.meta.env.VITE_DMS_MIDDLEWARE_URL || 'http://localhost:8000';
-const REVERB_KEY    = import.meta.env.VITE_REVERB_APP_KEY  || 'dms-local-key';
-const REVERB_HOST   = import.meta.env.VITE_REVERB_HOST     || 'localhost';
-const REVERB_PORT   = import.meta.env.VITE_REVERB_PORT     || '8080';
-const REVERB_SCHEME = import.meta.env.VITE_REVERB_SCHEME   || 'http';
+const REVERB_KEY = import.meta.env.VITE_REVERB_APP_KEY || 'dms-local-key';
+const REVERB_HOST = import.meta.env.VITE_REVERB_HOST || 'localhost';
+const REVERB_PORT = import.meta.env.VITE_REVERB_PORT || '8080';
+const REVERB_SCHEME = import.meta.env.VITE_REVERB_SCHEME || 'http';
 
 function App() {
   const [displayId, setDisplayId] = useState<string>(() => {
@@ -25,17 +25,17 @@ function App() {
   });
 
   const [inputDisplayId, setInputDisplayId] = useState('');
-  const [deviceName, setDeviceName]         = useState('Memuat...');
-  const [targetType, setTargetType]         = useState<string | null>(null);
-  const [targetLabel, setTargetLabel]       = useState('');  // Human-readable name of current mapping
-  const [wardData, setWardData]             = useState<any>(null);
-  const [orData, setOrData]                 = useState<any[]>([]);
-  const [orName, setOrName]                 = useState('');
-  const [isOnline, setIsOnline]             = useState(false);
-  const [errorMsg, setErrorMsg]             = useState('');
-  const [currentTime, setCurrentTime]       = useState('');
-  const [currentDate, setCurrentDate]       = useState('');
-  const [lastUpdated, setLastUpdated]       = useState('');
+  const [deviceName, setDeviceName] = useState('Memuat...');
+  const [targetType, setTargetType] = useState<string | null>(null);
+  const [targetLabel, setTargetLabel] = useState('');  // Human-readable name of current mapping
+  const [wardData, setWardData] = useState<any>(null);
+  const [orData, setOrData] = useState<any[]>([]);
+  const [orName, setOrName] = useState('');
+  const [isOnline, setIsOnline] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [currentTime, setCurrentTime] = useState('');
+  const [currentDate, setCurrentDate] = useState('');
+  const [lastUpdated, setLastUpdated] = useState('');
 
   // useRef to keep fetchState stable across re-renders (prevents stale closures in Echo callbacks)
   const displayIdRef = useRef(displayId);
@@ -90,6 +90,13 @@ function App() {
           setOrName(label);
           setOrData(content.schedules || []);
           setWardData(null);
+        } else if (res.data.target_type === 'inpatient_room' && res.data.content) {
+          const content = res.data.content;
+          const label = `${content.name} (Gedung ${content.building} - Lantai ${content.floor})`;
+          setTargetLabel(label);
+          setWardData(content);
+          setOrData([]);
+          setOrName('');
         } else {
           setTargetLabel('');
           setWardData(null);
@@ -177,6 +184,10 @@ function App() {
           setOrData(e.schedules || []);
           setLastUpdated(new Date().toLocaleTimeString('id-ID'));
         }
+      })
+      .listen('.InpatientRoomAvailabilityChanged', () => {
+        console.log('[Display] InpatientRoomAvailabilityChanged received, refreshing state…');
+        fetchState();
       });
 
     return () => {
@@ -281,6 +292,34 @@ function App() {
           </div>
         )}
 
+        {/* Inpatient room view */}
+        {!errorMsg && targetType === 'inpatient_room' && wardData && !Array.isArray(wardData) && (
+          <div className="ward-card" style={{ borderColor: '#38bdf8' }}>
+            <div className="ward-header">
+              <span className="ward-label" style={{ color: '#38bdf8' }}>Status Ketersediaan Kamar Custom</span>
+              <h2 className="ward-name">{wardData.name}</h2>
+              <div style={{ fontSize: '1.1rem', color: '#94a3b8', marginTop: '0.4rem', fontWeight: 'normal' }}>
+                🏢 Gedung: <span style={{ color: 'white', fontWeight: 'bold' }}>{wardData.building}</span> &nbsp;|&nbsp; 📶 Lantai: <span style={{ color: 'white', fontWeight: 'bold' }}>{wardData.floor}</span>
+              </div>
+            </div>
+
+            <div className="stats-grid">
+              <div className="stat-box">
+                <span className="stat-title">TOTAL KASUR</span>
+                <span className="stat-value stat-value-total">{wardData.bed_total}</span>
+              </div>
+              <div className="stat-box">
+                <span className="stat-title">TERISI</span>
+                <span className="stat-value stat-value-occupied">{wardData.bed_occupied}</span>
+              </div>
+              <div className="stat-box stat-box-available" style={{ background: 'rgba(16, 185, 129, 0.1)', borderColor: 'rgba(16, 185, 129, 0.2)' }}>
+                <span className="ward-label" style={{ color: '#34d399' }}>TERSEDIA (SISA)</span>
+                <span className="stat-value stat-value-available" style={{ color: '#34d399' }}>{wardData.bed_available}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Ward summary view (Auto-scroll list of all wards) */}
         {!errorMsg && targetType === 'ward_summary' && wardData && Array.isArray(wardData) && (
           <div className="ward-summary-card">
@@ -288,7 +327,7 @@ function App() {
               <span className="ward-label" style={{ color: '#38bdf8' }}>Summary Rawat Inap</span>
               <h2 className="or-name">{targetLabel}</h2>
             </div>
-            
+
             <div className="table-container summary-scroll-container">
               <div className="summary-scroll-content">
                 <table className="stb-table">
@@ -348,9 +387,9 @@ function App() {
                         <td>{new Date(sch.scheduled_start_at).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}</td>
                         <td>{sch.actual_start_at ? new Date(sch.actual_start_at).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
                         <td>
-                          {sch.status === 'selesai'              && <span className="badge badge-success">Selesai</span>}
-                          {sch.status === 'sedang_dilaksanakan'  && <span className="badge badge-warning">Sedang Jalan</span>}
-                          {sch.status === 'menunggu'             && <span className="badge badge-muted">Menunggu</span>}
+                          {sch.status === 'selesai' && <span className="badge badge-success">Selesai</span>}
+                          {sch.status === 'sedang_dilaksanakan' && <span className="badge badge-warning">Sedang Jalan</span>}
+                          {sch.status === 'menunggu' && <span className="badge badge-muted">Menunggu</span>}
                         </td>
                       </tr>
                     ))}
