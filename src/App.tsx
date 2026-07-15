@@ -414,12 +414,24 @@ function App() {
   const renderPolyclinicView = () => {
     if (!poliData || poliData.doctors.length === 0) {
       return (
-        <div className="empty-mapping-card">
-          <div className="empty-mapping-icon">
-            <AlertCircle size={44} />
+        <div className="poli-closed-container">
+          <div className="poli-closed-card">
+            <div className="poli-closed-icon">
+              <CalendarClock size={64} />
+            </div>
+            <span className="poli-closed-tag">Layanan Selesai / Tidak Ada Praktik</span>
+            <h2>{poliData?.polyclinic_name || 'Poliklinik'}</h2>
+            <div className="poli-closed-divider"></div>
+            <p className="poli-closed-message">
+              Saat ini tidak ada jadwal praktik dokter yang aktif di poliklinik ini.
+            </p>
+            <p className="poli-closed-submessage">
+              Terima kasih atas kunjungan Anda. Silakan hubungi bagian pendaftaran untuk informasi jadwal praktik dokter selanjutnya.
+            </p>
+            <div className="poli-closed-footer">
+              <Clock3 size={16} /> RSBA Smart Queue System
+            </div>
           </div>
-          <h2>Belum ada dokter aktif</h2>
-          <p>Poliklinik ini belum memiliki dokter aktif yang terdaftar.</p>
         </div>
       );
     }
