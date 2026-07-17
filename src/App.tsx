@@ -123,25 +123,25 @@ function App() {
   const renderHeader = () => {
     if (targetType === 'polyclinic') {
       return (
-        <header className="screen-header polyclinic-header">
-          <div className="brand-block">
-            <div className="logo-box">
-              <img src="/logo-fallback.png" alt="Logo RSBA" className="brand-mark-img" />
+        <header>
+          <div className="brand">
+            <div className="logo">
+              <img src="/logo-fallback.png" alt="Logo RSBA" />
             </div>
-            <div className="brand-text">
-              <div className="brand-name">Rumah Sakit Bintang Amin</div>
-              <div className="brand-motto">Melayani dengan Hati</div>
+            <div>
+              <div className="rs-name">Rumah Sakit Bintang Amin</div>
+              <div className="rs-tag">Melayani dengan Hati</div>
             </div>
           </div>
 
-          <div className="center-block">
-            <h1 className="polyclinic-title">{poliData?.polyclinic_name || 'Poliklinik'}</h1>
-            <div className="polyclinic-subtitle">RAWAT JALAN · LANTAI 2</div>
+          <div className="poli-title">
+            <div className="poli-name">{poliData?.polyclinic_name || 'Poliklinik'}</div>
+            <div className="poli-sub">Rawat Jalan &middot; Lantai 2</div>
           </div>
 
-          <div className="clock-panel">
-            <div className="clock-time">{currentTime}</div>
-            <div className="clock-date">{currentDate}</div>
+          <div className="clock-block">
+            <div className="time" id="clock">{currentTime}</div>
+            <div className="date" id="dateStr">{currentDate}</div>
           </div>
         </header>
       );
@@ -472,36 +472,29 @@ function App() {
         {/* KOLOM KIRI (35-40%) */}
         <div className="poli-left-column">
           {/* Card Informasi Dokter */}
-          <div className="poli-card doctor-card">
-            <div className="doctor-card-content">
-              <div className="doctor-photo-wrapper">
-                {activeDoctor.photo_url ? (
-                  <img
-                    src={activeDoctor.photo_url}
-                    alt={activeDoctor.name}
-                    className="doctor-avatar"
-                  />
-                ) : (
-                  <div className="doctor-avatar-placeholder">
-                    <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="doctor-placeholder-icon">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
-                  </div>
-                )}
-              </div>
-              <div className="doctor-details">
-                <h3 className="doctor-fullname">{activeDoctor.name}</h3>
-                <span className="doctor-specialty-badge">
-                  {activeDoctor.specialty || `Spesialis ${poliData.polyclinic_name}`}
-                </span>
-                <div className="doctor-schedule-row">
-                  <Clock3 size={14} />
-                  <span>Senin~Jumat, 08.00 - 14.00</span>
-                </div>
-              </div>
+          <div className="card doctor-card">
+            <div className="doctor-photo">
+              {activeDoctor.photo_url ? (
+                <img
+                  src={activeDoctor.photo_url}
+                  alt={activeDoctor.name}
+                  className="doctor-avatar"
+                />
+              ) : (
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="8" r="4" fill="currentColor" fill-opacity="0.85"/>
+                  <path d="M4 20C4 16.13 7.58 13 12 13C16.42 13 20 16.13 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              )}
             </div>
-            
+            <div className="doctor-info">
+              <div className="doctor-name">{activeDoctor.name}</div>
+              <div className="doctor-spec">
+                {activeDoctor.specialty || `Spesialis ${poliData.polyclinic_name}`}
+              </div>
+              <div className="doctor-schedule">🕒 Senin–Jumat, 08.00 – 14.00</div>
+            </div>
+
             {/* Doctor Switch Buttons (if > 1 doctor) */}
             {poliData.doctors.length > 1 && (
               <div className="doctor-navigation">
@@ -525,23 +518,16 @@ function App() {
           </div>
 
           {/* Card Nomor Antrian Sedang Dilayani */}
-          <div className="poli-card serving-card">
-            <div className="serving-card-badge">
-              <span className="pulse-dot"></span>
-              SEDANG DILAYANI
+          <div className="card queue-hero">
+            <span className="badge-serving"><span className="dot"></span> Sedang Dilayani</span>
+            <div className="queue-number">
+              {servingPatient ? servingPatient.queue_number : '-'}
             </div>
-            <div className="serving-number-wrapper">
-              <h1 className="serving-number">
-                {servingPatient ? servingPatient.queue_number : '-'}
-              </h1>
+            <div className="queue-patient">
+              {servingPatient ? servingPatient.patient_name : 'Tidak ada pasien'}
             </div>
-            <div className="serving-patient-info">
-              <h4 className="serving-patient-name">
-                {servingPatient ? servingPatient.patient_name : 'Tidak ada pasien'}
-              </h4>
-              <p className="serving-location">
-                {deviceName}
-              </p>
+            <div className="queue-room">
+              {deviceName}
             </div>
           </div>
         </div>
@@ -549,10 +535,10 @@ function App() {
         {/* KOLOM KANAN (60-65%) */}
         <div className="poli-right-column">
           {/* Card Daftar Antrian Menunggu */}
-          <div className="poli-card queue-list-card">
-            <div className="card-header-row">
-              <h3 className="card-title">Daftar Antrian Menunggu</h3>
-              <span className="waiting-count-badge">{waitingPatients.length} Pasien</span>
+          <div className="card table-card">
+            <div className="table-card-head">
+              <h2>Daftar Antrian Menunggu</h2>
+              <span className="count-pill">{waitingPatients.length} Pasien</span>
             </div>
             
             {waitingPatients.length === 0 ? (
@@ -561,24 +547,22 @@ function App() {
                 <p>Belum ada antrian menunggu untuk dokter ini.</p>
               </div>
             ) : (
-              <div className="table-responsive">
-                <table className="modern-queue-table">
+              <div className="table-scroll">
+                <table>
                   <thead>
                     <tr>
-                      <th style={{ width: '120px' }}>NO.</th>
-                      <th>NAMA PASIEN</th>
-                      <th style={{ width: '150px', textAlign: 'right' }}>STATUS</th>
+                      <th style={{ width: '100px' }}>No.</th>
+                      <th>Nama Pasien</th>
+                      <th style={{ textAlign: 'right' }}>Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {waitingPatients.map((item) => (
                       <tr key={`${item.queue_number}-${item.patient_name}`}>
-                        <td>
-                          <span className="waiting-number">{item.queue_number}</span>
-                        </td>
-                        <td className="waiting-name">{item.patient_name}</td>
-                        <td style={{ textAlign: 'right' }}>
-                          <span className="badge-waiting">Menunggu</span>
+                        <td className="num">{item.queue_number}</td>
+                        <td className="name">{item.patient_name}</td>
+                        <td className="status">
+                          <span className="status-badge status-waiting">Menunggu</span>
                         </td>
                       </tr>
                     ))}
@@ -589,19 +573,21 @@ function App() {
           </div>
 
           {/* Card Pasien Terlewat */}
-          <div className="poli-card skipped-queue-card">
-            <div className="card-header-row">
-              <h3 className="card-title-sm">Pasien Terlewat</h3>
-              <span className="skipped-count-badge">{skippedPatients.length} Pasien</span>
+          <div className="card missed-card">
+            <div className="missed-card-head">
+              <h3>Pasien Terlewat</h3>
+              <span className="count-pill" style={{ background: 'var(--red-100)', color: 'var(--red-500)' }}>
+                {skippedPatients.length} Pasien
+              </span>
             </div>
             {skippedPatients.length === 0 ? (
               <p className="empty-skipped-text">Tidak ada pasien terlewat.</p>
             ) : (
-              <div className="skipped-grid">
+              <div className="missed-list">
                 {skippedPatients.map((item) => (
-                  <div key={`${item.queue_number}-${item.patient_name}`} className="skipped-item">
-                    <span className="skipped-number">{item.queue_number}</span>
-                    <span className="skipped-name">{item.patient_name}</span>
+                  <div key={`${item.queue_number}-${item.patient_name}`} className="missed-chip">
+                    <span className="num">{item.queue_number}</span>
+                    <span>{item.patient_name}</span>
                   </div>
                 ))}
               </div>
@@ -808,7 +794,7 @@ function App() {
     <div className={`screen-container ${targetType === 'polyclinic' ? 'light-theme' : ''}`}>
       {renderHeader()}
 
-      <main className="board-area">
+      <main className={targetType === 'polyclinic' ? 'body-wrap' : 'board-area'}>
         {errorMsg && (
           <div className="error-card">
             <AlertCircle size={48} />
