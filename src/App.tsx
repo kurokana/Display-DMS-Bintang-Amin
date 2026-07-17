@@ -125,9 +125,7 @@ function App() {
   const renderHeader = () => (
     <header className="screen-header">
       <div className="brand-block">
-        <div className="brand-mark">
-          <HeartPulse size={22} />
-        </div>
+        <img src="/logo-fallback.png" alt="Logo RSBA" className="brand-mark-img" />
         <div>
           <div className="brand-kicker">Rumah Sakit Bintang Amin</div>
           <h1 className="device-title">{deviceName}</h1>
@@ -759,9 +757,7 @@ function App() {
       <div className="setup-container">
         <div className="setup-backdrop"></div>
         <form onSubmit={handleProvision} className="setup-card">
-          <div className="setup-icon">
-            <Monitor size={44} />
-          </div>
+          <img src="/logo-fallback.png" alt="Logo RSBA" className="setup-icon-img" />
           <div className="setup-kicker">Rumah Sakit Bintang Amin</div>
           <h2 className="setup-title">Display Ruangan Rawat Inap & Operasi</h2>
           <p className="setup-copy">Masukkan ID display agar monitor tersambung ke data ruangan yang sesuai pada sistem DMS.</p>

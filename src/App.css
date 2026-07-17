@@ -58,16 +58,10 @@
   gap: 16px;
 }
 
-.brand-mark {
+.brand-mark-img {
   width: 56px;
-  height: 56px;
-  border-radius: 18px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(145deg, rgba(34, 211, 238, 0.2), rgba(14, 165, 233, 0.05));
-  color: #7dd3fc;
-  border: 1px solid rgba(125, 211, 252, 0.22);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  height: auto;
+  object-fit: contain;
 }
 
 .brand-kicker,
@@ -585,16 +579,11 @@
   text-align: center;
 }
 
-.setup-icon {
+.setup-icon-img {
   width: 84px;
-  height: 84px;
+  height: auto;
   margin-inline: auto;
-  border-radius: 26px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(145deg, rgba(34, 211, 238, 0.2), rgba(14, 165, 233, 0.06));
-  color: #7dd3fc;
-  border: 1px solid rgba(125, 211, 252, 0.22);
+  object-fit: contain;
 }
 
 .setup-title {
