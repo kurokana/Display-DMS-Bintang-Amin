@@ -1014,15 +1014,635 @@
   margin-bottom: 32px;
 }
 
-.poli-closed-footer {
+/* ═══════════════════════════════════════════════════════════════════════════════
+   LIGHT THEME OVERRIDES FOR POLYCLINIC DISPLAY (BASED ON MOCKUP CODE)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+.light-theme {
+  --blue-900:#0B3B66;
+  --blue-700:#0F5FA8;
+  --blue-600:#1670C7;
+  --blue-500:#2E8BE6;
+  --blue-100:#E8F1FB;
+  --gray-50:#F4F6F9;
+  --gray-100:#EDF1F5;
+  --gray-300:#D7DEE6;
+  --gray-500:#7C8798;
+  --gray-700:#3E4753;
+  --white:#FFFFFF;
+  --green-600:#16A34A;
+  --green-100:#DFF6E7;
+  --amber-600:#C98A00;
+  --amber-100:#FDF1D6;
+  --red-500:#D5493F;
+  --red-100:#FBE7E5;
+  --shadow-soft: 0 8px 24px rgba(15, 68, 121, 0.08), 0 2px 6px rgba(15,68,121,0.06);
+  --shadow-card: 0 10px 30px rgba(20, 60, 110, 0.07);
+  --radius-lg: 28px;
+  --radius-md: 20px;
+  --radius-sm: 14px;
+}
+
+.light-theme.screen-container {
+  height: 100vh;
+  width: 100vw;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #F6F9FC 0%, #EEF3F8 100%);
+  color: var(--gray-700);
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+.light-theme::before,
+.light-theme::after {
+  display: none !important;
+}
+
+/* Hide header chips & footer */
+.light-theme .header-meta,
+.light-theme .connection-status-pill,
+.light-theme .clock-subtitle,
+.light-theme .screen-footer {
+  display: none !important;
+}
+
+/* Polyclinic Header */
+.light-theme .screen-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--white);
+  padding: 18px 40px;
+  box-shadow: var(--shadow-soft);
+  z-index: 10;
+  border: none;
+  border-radius: 0;
+}
+
+.light-theme .screen-header::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--blue-900), var(--blue-500));
+}
+
+.light-theme .polyclinic-header .brand-block {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.light-theme .polyclinic-header .logo-box {
+  width: 56px; height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--blue-700), var(--blue-500));
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 16px rgba(15, 95, 168, 0.35);
+  flex-shrink: 0;
+}
+
+.light-theme .polyclinic-header .brand-mark-img {
+  width: 30px; height: 30px;
+  filter: brightness(0) invert(1);
+}
+
+.light-theme .polyclinic-header .brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.light-theme .polyclinic-header .brand-name {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--blue-900);
+  line-height: 1.15;
+}
+
+.light-theme .polyclinic-header .brand-motto {
+  font-size: 13px;
+  color: var(--gray-500);
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.light-theme .polyclinic-header .center-block {
+  flex: 1.4;
+  text-align: center;
+}
+
+.light-theme .polyclinic-header .polyclinic-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 30px;
+  color: var(--blue-900);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.light-theme .polyclinic-header .polyclinic-subtitle {
+  font-size: 14px;
+  color: var(--blue-600);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.light-theme .polyclinic-header .clock-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 0;
+}
+
+.light-theme .polyclinic-header .clock-time {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 34px;
+  color: var(--blue-900);
+  letter-spacing: 0.01em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.light-theme .polyclinic-header .clock-date {
+  font-size: 14px;
+  color: var(--gray-500);
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* Body Area */
+.light-theme .board-area {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(340px, 38%) 1fr;
+  gap: 24px;
+  padding: 24px 40px 28px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.light-theme .poli-layout {
+  display: contents;
+}
+
+.light-theme .poli-left-column,
+.light-theme .poli-right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+}
+
+.light-theme .poli-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  border: 1px solid rgba(20, 60, 110, 0.05);
+  animation: fadeSlideUp 0.6s ease both;
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Doctor card */
+.light-theme .doctor-card {
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.light-theme .doctor-card-content {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+}
+
+.light-theme .doctor-photo-wrapper {
+  width: 78px; height: 78px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue-100), #fff);
+  border: 3px solid var(--blue-100);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.light-theme .doctor-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.light-theme .doctor-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.light-theme .doctor-placeholder-icon {
+  width: 42px; height: 42px;
+  color: var(--blue-600);
+}
+
+.light-theme .doctor-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.light-theme .doctor-fullname {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 19px;
+  color: var(--blue-900);
+  line-height: 1.2;
+}
+
+.light-theme .doctor-specialty-badge {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--blue-700);
+  background: var(--blue-100);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.light-theme .doctor-schedule-row {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--gray-500);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.light-theme .doctor-schedule-row svg {
+  color: var(--gray-500);
+}
+
+.light-theme .doctor-navigation {
+  border-top: 1px solid var(--gray-100);
+  padding-top: 12px;
+  width: 100%;
+}
+
+.light-theme .nav-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gray-500);
+}
+
+.light-theme .doctor-switch-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.light-theme .doctor-switch-btn {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-300);
+  color: var(--gray-700);
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.light-theme .doctor-switch-btn:hover {
+  background: var(--blue-100);
+  color: var(--blue-700);
+}
+
+.light-theme .doctor-switch-btn.active {
+  background: var(--blue-600);
+  border-color: var(--blue-600);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(22, 112, 199, 0.25);
+}
+
+.light-theme .doctor-switch-note {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--gray-500);
+  font-weight: 500;
+  margin-top: 6px;
+}
+
+/* Queue hero card */
+.light-theme .serving-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 28px 20px 34px;
+  background: radial-gradient(120% 140% at 50% 0%, #1670C7 0%, #0F5FA8 45%, #0B3B66 100%);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  border-radius: var(--radius-lg);
+}
+
+.light-theme .serving-card::after {
+  content: "";
+  position: absolute;
+  width: 340px; height: 340px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0%, transparent 70%);
+  top: -90px; right: -90px;
+  pointer-events: none;
+}
+
+.light-theme .serving-card-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.75rem;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  padding: 7px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  backdrop-filter: blur(4px);
+  margin: 0 auto;
+}
+
+.light-theme .pulse-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #5EE68C;
+  box-shadow: 0 0 0 0 rgba(94, 230, 140, 0.6);
+  animation: pulseDot 1.6s infinite;
+}
+
+@keyframes pulseDot {
+  0% { box-shadow: 0 0 0 0 rgba(94, 230, 140, 0.55); }
+  70% { box-shadow: 0 0 0 10px rgba(94, 230, 140, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(94, 230, 140, 0); }
+}
+
+.light-theme .serving-number {
+  font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
-  color: rgba(148, 163, 184, 0.6);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding-top: 20px;
+  font-size: clamp(72px, 11vw, 140px);
+  line-height: 1;
+  margin: 18px 0 6px;
+  letter-spacing: 0.01em;
+  color: #ffffff;
+  text-shadow: 0 0 40px rgba(120, 190, 255, 0.65), 0 0 90px rgba(80, 160, 255, 0.35);
+}
+
+.light-theme .serving-patient-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #EAF3FF;
+  letter-spacing: 0.02em;
+}
+
+.light-theme .serving-location {
+  margin-top: 14px;
+  font-size: 13.5px;
+  color: #BBD9F6;
+  font-weight: 500;
+}
+
+/* Right column: waiting table */
+.light-theme .queue-list-card {
+  flex: 1.5;
+  padding: 22px 24px 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.light-theme .card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.light-theme .card-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--blue-900);
+}
+
+.light-theme .waiting-count-badge {
+  background: var(--blue-100);
+  color: var(--blue-700);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 5px 14px;
+  border-radius: 999px;
+}
+
+.light-theme .table-responsive {
+  flex: 1;
+  overflow-y: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-100);
+}
+
+.light-theme .modern-queue-table {
   width: 100%;
+  border-collapse: collapse;
+}
+
+.light-theme .modern-queue-table th {
+  background: linear-gradient(90deg, var(--blue-700), var(--blue-600));
+  color: #fff;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 13px 18px;
+  border-bottom: none;
+}
+
+.light-theme .modern-queue-table th:first-child { border-top-left-radius: var(--radius-sm); }
+.light-theme .modern-queue-table th:last-child { border-top-right-radius: var(--radius-sm); text-align: right; }
+
+.light-theme .modern-queue-table tbody tr {
+  transition: background 0.25s ease;
+  animation: fadeSlideUp 0.5s ease both;
+}
+
+.light-theme .modern-queue-table tbody tr:nth-child(odd) td { background: var(--white); }
+.light-theme .modern-queue-table tbody tr:nth-child(even) td { background: var(--gray-50); }
+.light-theme .modern-queue-table tbody tr:hover td { background: var(--blue-100); }
+
+.light-theme .modern-queue-table td {
+  padding: 14px 18px;
+  font-size: 15.5px;
+  border-bottom: 1px solid var(--gray-100);
+  vertical-align: middle;
+}
+
+.light-theme .modern-queue-table tr:last-child td { border-bottom: none; }
+
+.light-theme .waiting-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  color: var(--blue-900);
+  font-size: 17px;
+}
+
+.light-theme .waiting-name {
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.light-theme .badge-waiting {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: var(--amber-100);
+  color: var(--amber-600);
+  border: none;
+  text-transform: none;
+}
+
+.light-theme .empty-queue-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  padding: 60px 20px;
+  color: var(--gray-500);
+  gap: 12px;
+}
+
+.light-theme .empty-queue-state p {
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+/* Missed patients card */
+.light-theme .skipped-queue-card {
+  padding: 18px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.light-theme .card-title-sm {
+  font-family: 'Outfit', sans-serif;
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--gray-700);
+}
+
+.light-theme .skipped-count-badge {
+  background: var(--red-100);
+  color: var(--red-500);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 5px 14px;
+  border-radius: 999px;
+}
+
+.light-theme .empty-skipped-text {
+  font-size: 13px;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+.light-theme .skipped-grid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.light-theme .skipped-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--red-100);
+  color: var(--red-500);
+  padding: 7px 14px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  border: 1px solid rgba(213, 73, 63, 0.15);
+  transition: background 0.2s ease;
+}
+
+.light-theme .skipped-item:hover {
+  background: #fecaca;
+  transform: none;
+}
+
+.light-theme .skipped-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  color: var(--red-500);
+}
+
+.light-theme .skipped-name {
+  color: var(--gray-700);
+  font-weight: 600;
+}
+
+/* Polyclinic Closed state in light theme */
+.light-theme .poli-closed-card {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+}
+
+.light-theme .poli-closed-tag {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.light-theme .poli-closed-message {
+  color: #0f172a;
+}
+
+.light-theme .poli-closed-submessage {
+  color: #64748b;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 1024px) {
+  .light-theme .poli-layout {
+    grid-template-columns: 1fr;
+  }
 }

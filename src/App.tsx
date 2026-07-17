@@ -9,9 +9,7 @@ import {
   Building2,
   CalendarClock,
   Clock3,
-  HeartPulse,
   MapPin,
-  Monitor,
   ShieldPlus,
   Sparkles,
   Stethoscope,
@@ -86,7 +84,7 @@ function App() {
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      setCurrentTime(now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+      setCurrentTime(now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\./g, ':'));
       setCurrentDate(now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' } as any));
     };
     updateTime();
@@ -122,34 +120,62 @@ function App() {
     </div>
   );
 
-  const renderHeader = () => (
-    <header className="screen-header">
-      <div className="brand-block">
-        <img src="/logo-fallback.png" alt="Logo RSBA" className="brand-mark-img" />
-        <div>
-          <div className="brand-kicker">Rumah Sakit Bintang Amin</div>
-          <h1 className="device-title">{deviceName}</h1>
-          <div className="header-meta">
-            <span className="device-badge">DISPLAY {displayId}</span>
-            {targetLabel && (
-              <span className="target-chip">
-                <MapPin size={14} /> {targetLabel}
-              </span>
-            )}
+  const renderHeader = () => {
+    if (targetType === 'polyclinic') {
+      return (
+        <header className="screen-header polyclinic-header">
+          <div className="brand-block">
+            <div className="logo-box">
+              <img src="/logo-fallback.png" alt="Logo RSBA" className="brand-mark-img" />
+            </div>
+            <div className="brand-text">
+              <div className="brand-name">Rumah Sakit Bintang Amin</div>
+              <div className="brand-motto">Melayani dengan Hati</div>
+            </div>
           </div>
-          {renderStatusPill()}
-        </div>
-      </div>
 
-      <div className="clock-panel">
-        <div className="clock-time">{currentTime}</div>
-        <div className="clock-date">{currentDate}</div>
-        <div className="clock-subtitle">
-          <Sparkles size={14} /> Display informasi layanan pasien
+          <div className="center-block">
+            <h1 className="polyclinic-title">{poliData?.polyclinic_name || 'Poliklinik'}</h1>
+            <div className="polyclinic-subtitle">RAWAT JALAN · LANTAI 2</div>
+          </div>
+
+          <div className="clock-panel">
+            <div className="clock-time">{currentTime}</div>
+            <div className="clock-date">{currentDate}</div>
+          </div>
+        </header>
+      );
+    }
+
+    return (
+      <header className="screen-header">
+        <div className="brand-block">
+          <img src="/logo-fallback.png" alt="Logo RSBA" className="brand-mark-img" />
+          <div>
+            <div className="brand-kicker">Rumah Sakit Bintang Amin</div>
+            <h1 className="device-title">{deviceName}</h1>
+            <div className="header-meta">
+              <span className="device-badge">DISPLAY {displayId}</span>
+              {targetLabel && (
+                <span className="target-chip">
+                  <MapPin size={14} /> {targetLabel}
+                </span>
+              )}
+            </div>
+            {renderStatusPill()}
+          </div>
         </div>
-      </div>
-    </header>
-  );
+
+        <div className="clock-panel">
+          <div className="clock-time">{currentTime}</div>
+          <div className="clock-date">{currentDate}</div>
+          <div className="clock-subtitle">
+            <Sparkles size={14} /> Display informasi layanan pasien
+          </div>
+        </div>
+      </header>
+    );
+  };
 
   const renderMetric = (label: string, value: string | number, hint: string, tone: 'cyan' | 'emerald' | 'amber' | 'rose') => (
     <div className={`metric-card metric-${tone}`}>
@@ -437,148 +463,150 @@ function App() {
     const activeDoctor = poliData.doctors[activeDoctorIndex] || poliData.doctors[0];
     const queue = activeDoctor.queue || [];
 
-    const queueCounts = queue.reduce(
-      (acc, item) => {
-        if (item.status === 'menunggu') acc.waiting += 1;
-        else if (item.status === 'dilayani') acc.serving += 1;
-        else if (item.status === 'selesai') acc.done += 1;
-        else if (item.status === 'terlewat') acc.skipped += 1;
-        return acc;
-      },
-      { waiting: 0, serving: 0, done: 0, skipped: 0 },
-    );
+    const servingPatient = queue.find(item => item.status === 'dilayani');
+    const waitingPatients = queue.filter(item => item.status === 'menunggu');
+    const skippedPatients = queue.filter(item => item.status === 'terlewat');
 
     return (
       <section className="poli-layout">
-        <aside className="hero-panel hero-panel-poli">
-          <div className="panel-kicker">
-            <Stethoscope size={16} /> Poliklinik
-          </div>
-          <h2 className="panel-title">{poliData.polyclinic_name}</h2>
-
-          {/* Doctor Photo */}
-          <div className="doctor-photo-container">
-            {activeDoctor.photo_url ? (
-              <img
-                src={activeDoctor.photo_url}
-                alt={activeDoctor.name}
-                className="doctor-photo"
-              />
-            ) : (
-              <div className="doctor-photo doctor-photo-placeholder">
-                <Stethoscope size={48} />
+        {/* KOLOM KIRI (35-40%) */}
+        <div className="poli-left-column">
+          {/* Card Informasi Dokter */}
+          <div className="poli-card doctor-card">
+            <div className="doctor-card-content">
+              <div className="doctor-photo-wrapper">
+                {activeDoctor.photo_url ? (
+                  <img
+                    src={activeDoctor.photo_url}
+                    alt={activeDoctor.name}
+                    className="doctor-avatar"
+                  />
+                ) : (
+                  <div className="doctor-avatar-placeholder">
+                    <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="doctor-placeholder-icon">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+              <div className="doctor-details">
+                <h3 className="doctor-fullname">{activeDoctor.name}</h3>
+                <span className="doctor-specialty-badge">
+                  {activeDoctor.specialty || `Spesialis ${poliData.polyclinic_name}`}
+                </span>
+                <div className="doctor-schedule-row">
+                  <Clock3 size={14} />
+                  <span>Senin~Jumat, 08.00 - 14.00</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Doctor Switch Buttons (if > 1 doctor) */}
+            {poliData.doctors.length > 1 && (
+              <div className="doctor-navigation">
+                <span className="nav-label">Dokter Lainnya:</span>
+                <div className="doctor-switch-bar">
+                  {poliData.doctors.map((doc, idx) => (
+                    <button
+                      key={doc.id}
+                      className={`doctor-switch-btn ${idx === activeDoctorIndex ? 'active' : ''}`}
+                      onClick={() => setActiveDoctorIndex(idx)}
+                    >
+                      {doc.name.split(',')[0]} {/* Shorten name */}
+                    </button>
+                  ))}
+                </div>
+                <div className="doctor-switch-note">
+                  <Clock3 size={12} /> Otomatis berganti setiap 15 detik
+                </div>
               </div>
             )}
           </div>
 
-          {/* Doctor Info */}
-          <div className="doctor-info">
-            <h3 className="doctor-name">{activeDoctor.name}</h3>
-            {activeDoctor.specialty && (
-              <p className="doctor-specialty">{activeDoctor.specialty}</p>
+          {/* Card Nomor Antrian Sedang Dilayani */}
+          <div className="poli-card serving-card">
+            <div className="serving-card-badge">
+              <span className="pulse-dot"></span>
+              SEDANG DILAYANI
+            </div>
+            <div className="serving-number-wrapper">
+              <h1 className="serving-number">
+                {servingPatient ? servingPatient.queue_number : '-'}
+              </h1>
+            </div>
+            <div className="serving-patient-info">
+              <h4 className="serving-patient-name">
+                {servingPatient ? servingPatient.patient_name : 'Tidak ada pasien'}
+              </h4>
+              <p className="serving-location">
+                {deviceName}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* KOLOM KANAN (60-65%) */}
+        <div className="poli-right-column">
+          {/* Card Daftar Antrian Menunggu */}
+          <div className="poli-card queue-list-card">
+            <div className="card-header-row">
+              <h3 className="card-title">Daftar Antrian Menunggu</h3>
+              <span className="waiting-count-badge">{waitingPatients.length} Pasien</span>
+            </div>
+            
+            {waitingPatients.length === 0 ? (
+              <div className="empty-queue-state">
+                <Clock3 size={28} />
+                <p>Belum ada antrian menunggu untuk dokter ini.</p>
+              </div>
+            ) : (
+              <div className="table-responsive">
+                <table className="modern-queue-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: '120px' }}>NO.</th>
+                      <th>NAMA PASIEN</th>
+                      <th style={{ width: '150px', textAlign: 'right' }}>STATUS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {waitingPatients.map((item) => (
+                      <tr key={`${item.queue_number}-${item.patient_name}`}>
+                        <td>
+                          <span className="waiting-number">{item.queue_number}</span>
+                        </td>
+                        <td className="waiting-name">{item.patient_name}</td>
+                        <td style={{ textAlign: 'right' }}>
+                          <span className="badge-waiting">Menunggu</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
 
-          {/* Queue Stats */}
-          <div className="poli-stats-grid">
-            <div className="poli-stat">
-              <span>Menunggu</span>
-              <strong>{queueCounts.waiting}</strong>
+          {/* Card Pasien Terlewat */}
+          <div className="poli-card skipped-queue-card">
+            <div className="card-header-row">
+              <h3 className="card-title-sm">Pasien Terlewat</h3>
+              <span className="skipped-count-badge">{skippedPatients.length} Pasien</span>
             </div>
-            <div className="poli-stat">
-              <span>Dilayani</span>
-              <strong>{queueCounts.serving}</strong>
-            </div>
-            <div className="poli-stat">
-              <span>Selesai</span>
-              <strong>{queueCounts.done}</strong>
-            </div>
-          </div>
-
-          {/* Doctor Switch Buttons */}
-          {poliData.doctors.length > 1 && (
-            <div className="doctor-switch-bar">
-              {poliData.doctors.map((doc, idx) => (
-                <button
-                  key={doc.id}
-                  className={`doctor-switch-btn ${idx === activeDoctorIndex ? 'active' : ''}`}
-                  onClick={() => setActiveDoctorIndex(idx)}
-                >
-                  {doc.name}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {poliData.doctors.length > 1 && (
-            <div className="hero-note">
-              <Clock3 size={16} /> Tampilan berganti otomatis setiap 15 detik
-            </div>
-          )}
-        </aside>
-
-        <div className="table-panel table-panel-poli">
-          {queue.length === 0 ? (
-            <div className="empty-state">
-              <Clock3 size={32} />
-              <p>Belum ada antrian untuk dokter ini hari ini.</p>
-            </div>
-          ) : (
-            <table className="display-table display-table-poli">
-              <thead>
-                <tr>
-                  <th>No.</th>
-                  <th>Nama Pasien</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {queue.map((item) => (
-                  <tr
-                    key={`${item.queue_number}-${item.patient_name}`}
-                    className={
-                      item.status === 'dilayani'
-                        ? 'queue-row-serving'
-                        : item.status === 'terlewat'
-                        ? 'queue-row-skipped'
-                        : ''
-                    }
-                  >
-                    <td>
-                      <span
-                        className={`queue-number ${
-                          item.status === 'dilayani' ? 'queue-number-serving' : ''
-                        }`}
-                      >
-                        {item.queue_number}
-                      </span>
-                    </td>
-                    <td
-                      className={`table-strong ${
-                        item.status === 'terlewat' ? 'queue-name-skipped' : ''
-                      }`}
-                    >
-                      {item.patient_name}
-                    </td>
-                    <td>
-                      {item.status === 'menunggu' && (
-                        <span className="status-badge status-muted">Menunggu</span>
-                      )}
-                      {item.status === 'dilayani' && (
-                        <span className="status-badge status-warning">Dilayani</span>
-                      )}
-                      {item.status === 'selesai' && (
-                        <span className="status-badge status-success">Selesai</span>
-                      )}
-                      {item.status === 'terlewat' && (
-                        <span className="status-badge status-danger">Terlewat</span>
-                      )}
-                    </td>
-                  </tr>
+            {skippedPatients.length === 0 ? (
+              <p className="empty-skipped-text">Tidak ada pasien terlewat.</p>
+            ) : (
+              <div className="skipped-grid">
+                {skippedPatients.map((item) => (
+                  <div key={`${item.queue_number}-${item.patient_name}`} className="skipped-item">
+                    <span className="skipped-number">{item.queue_number}</span>
+                    <span className="skipped-name">{item.patient_name}</span>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          )}
+              </div>
+            )}
+          </div>
         </div>
       </section>
     );
@@ -777,7 +805,7 @@ function App() {
 
   // ─── Main display screen ─────────────────────────────────────────────────────
   return (
-    <div className="screen-container">
+    <div className={`screen-container ${targetType === 'polyclinic' ? 'light-theme' : ''}`}>
       {renderHeader()}
 
       <main className="board-area">
