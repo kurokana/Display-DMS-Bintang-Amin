@@ -136,7 +136,7 @@ function App() {
 
           <div className="poli-title">
             <div className="poli-name">{poliData?.polyclinic_name || 'Poliklinik'}</div>
-            <div className="poli-sub">Rawat Jalan &middot; Lantai 2</div>
+            <div className="poli-sub">{poliData?.polyclinic_code || 'Poliklinik'}</div>
           </div>
 
           <div className="clock-block">
@@ -468,7 +468,7 @@ function App() {
               Terima kasih atas kunjungan Anda. Silakan hubungi bagian pendaftaran untuk informasi jadwal praktik dokter selanjutnya.
             </p>
             <div className="poli-closed-footer">
-              <Clock3 size={16} /> RSBA Smart Queue System
+              <Clock3 size={16} /> RSBA Information Display System
             </div>
           </div>
         </div>
