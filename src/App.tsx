@@ -130,7 +130,7 @@ function App() {
             </div>
             <div>
               <div className="rs-name">Rumah Sakit Bintang Amin</div>
-              <div className="rs-tag">Melayani dengan Hati</div>
+              <div className="rs-tag">We Care, We Cure</div>
             </div>
           </div>
 
@@ -178,10 +178,13 @@ function App() {
   };
 
   const renderMetric = (label: string, value: string | number, hint: string, tone: 'cyan' | 'emerald' | 'amber' | 'rose') => (
-    <div className={`metric-card metric-${tone}`}>
-      <div className="metric-label">{label}</div>
-      <div className="metric-value">{value}</div>
-      <div className="metric-hint">{hint}</div>
+    <div className={`premium-metric premium-metric-${tone}`}>
+      <div className="premium-metric-glow"></div>
+      <div className="premium-metric-content">
+        <div className="metric-label">{label}</div>
+        <div className="metric-value"><span className="value-number">{value}</span></div>
+        <div className="metric-hint">{hint}</div>
+      </div>
     </div>
   );
 
@@ -189,64 +192,63 @@ function App() {
     if (!wardData || Array.isArray(wardData)) return null;
 
     return (
-      <section className="content-grid content-grid-ward">
-        <aside className="hero-panel hero-panel-ward">
-          <div className="panel-kicker">
-            <BedDouble size={16} /> Rawat Inap
+      <section className="premium-content-grid">
+        <aside className="premium-hero-panel hero-ward">
+          <div className="panel-kicker premium-kicker">
+            <BedDouble size={18} /> Rawat Inap
           </div>
-          <h2 className="panel-title">{wardData.class_name || wardData.name || targetLabel}</h2>
-          <p className="panel-copy">
-            Informasi ketersediaan kamar dibuat untuk dibaca cepat dari kejauhan, dengan penekanan pada jumlah kapasitas, keterisian, dan sisa tempat.
+          <h2 className="premium-panel-title">{wardData.class_name || wardData.name || targetLabel}</h2>
+          <p className="premium-panel-copy">
+            Informasi ketersediaan kamar dibuat untuk dibaca cepat dari kejauhan.
           </p>
 
-          <div className="hero-progress">
-            <div className="hero-progress-head">
-              <span>Keterisian ruangan</span>
-              <strong>{occupancyRate}%</strong>
+          <div className="premium-progress-group">
+            <div className="premium-progress-item">
+              <div className="progress-head">
+                <span>Keterisian</span>
+                <strong className="text-rose-400">{occupancyRate}%</strong>
+              </div>
+              <div className="premium-progress-track">
+                <div className="premium-progress-fill fill-rose" style={{ width: `${occupancyRate}%` }}></div>
+              </div>
             </div>
-            <div className="progress-track">
-              <div className="progress-fill progress-fill-ward" style={{ width: `${occupancyRate}%` }}></div>
-            </div>
-          </div>
 
-          <div className="hero-progress">
-            <div className="hero-progress-head">
-              <span>Ketersediaan tempat</span>
-              <strong>{availableRate}%</strong>
+            <div className="premium-progress-item">
+              <div className="progress-head">
+                <span>Ketersediaan</span>
+                <strong className="text-emerald-400">{availableRate}%</strong>
+              </div>
+              <div className="premium-progress-track">
+                <div className="premium-progress-fill fill-emerald" style={{ width: `${availableRate}%` }}></div>
+              </div>
             </div>
-            <div className="progress-track">
-              <div className="progress-fill progress-fill-available" style={{ width: `${availableRate}%` }}></div>
-            </div>
-          </div>
-
-          <div className="hero-note">
-            <ShieldPlus size={18} /> Tampilan difokuskan untuk area display rumah sakit dan mudah dipantau dari jarak jauh.
           </div>
         </aside>
 
-        <div className="dashboard-column">
-          <div className="metric-grid">
-            {renderMetric('Total Bed', wardData.bed_total ?? '-', 'Kapasitas seluruh tempat tidur', 'cyan')}
-            {renderMetric('Terisi', wardData.bed_occupied ?? '-', 'Pasien aktif dirawat', 'rose')}
-            {renderMetric('Tersedia', wardData.bed_available ?? '-', 'Sisa tempat siap pakai', 'emerald')}
+        <div className="premium-dashboard-column">
+          <div className="premium-metric-grid">
+            {renderMetric('Total Bed', wardData.bed_total ?? '-', 'Kapasitas keseluruhan', 'cyan')}
+            {renderMetric('Terisi', wardData.bed_occupied ?? '-', 'Pasien aktif', 'rose')}
+            {renderMetric('Tersedia', wardData.bed_available ?? '-', 'Sisa tempat', 'emerald')}
           </div>
 
-          <div className="detail-panel">
-            <div className="detail-panel-title">
-              <Stethoscope size={18} /> Ringkasan ruang rawat inap
+          <div className="premium-detail-panel">
+            <div className="detail-header">
+              <Stethoscope size={20} className="detail-icon" />
+              <h3>Ringkasan Lokasi</h3>
             </div>
-            <div className="detail-list">
-              <div className="detail-row">
-                <span>Nama kelas</span>
-                <strong>{wardData.class_name || wardData.name || '-'}</strong>
+            <div className="premium-detail-grid">
+              <div className="premium-detail-item">
+                <span className="detail-lbl">Nama Kelas</span>
+                <strong className="detail-val">{wardData.class_name || wardData.name || '-'}</strong>
               </div>
-              <div className="detail-row">
-                <span>Gedung</span>
-                <strong>{wardData.building || '-'}</strong>
+              <div className="premium-detail-item">
+                <span className="detail-lbl">Gedung</span>
+                <strong className="detail-val">{wardData.building || '-'}</strong>
               </div>
-              <div className="detail-row">
-                <span>Lantai</span>
-                <strong>{wardData.floor || '-'}</strong>
+              <div className="premium-detail-item">
+                <span className="detail-lbl">Lantai</span>
+                <strong className="detail-val">{wardData.floor || '-'}</strong>
               </div>
             </div>
           </div>
@@ -259,47 +261,48 @@ function App() {
     if (!wardData || Array.isArray(wardData)) return null;
 
     return (
-      <section className="content-grid content-grid-inpatient">
-        <aside className="hero-panel hero-panel-inpatient">
-          <div className="panel-kicker">
-            <Building2 size={16} /> Ruang Rawat Inap
+      <section className="premium-content-grid">
+        <aside className="premium-hero-panel hero-inpatient">
+          <div className="panel-kicker premium-kicker">
+            <Building2 size={18} /> Ruang Spesifik
           </div>
-          <h2 className="panel-title">{wardData.name}</h2>
-          <p className="panel-copy">
-            Monitor ini menampilkan satu ruangan spesifik agar petugas dapat melihat status ruangan, gedung, dan lantai dengan cepat.
+          <h2 className="premium-panel-title">{wardData.name}</h2>
+          <p className="premium-panel-copy">
+            Monitor khusus ruangan untuk visibilitas cepat.
           </p>
 
-          <div className="info-stack">
-            <div className="info-item">
-              <span>Gedung</span>
-              <strong>{wardData.building}</strong>
+          <div className="premium-info-stack">
+            <div className="premium-info-item">
+              <span className="info-lbl">Gedung</span>
+              <strong className="info-val">{wardData.building}</strong>
             </div>
-            <div className="info-item">
-              <span>Lantai</span>
-              <strong>{wardData.floor}</strong>
+            <div className="premium-info-item">
+              <span className="info-lbl">Lantai</span>
+              <strong className="info-val">{wardData.floor}</strong>
             </div>
           </div>
         </aside>
 
-        <div className="dashboard-column">
-          <div className="metric-grid">
-            {renderMetric('Total Kasur', wardData.bed_total ?? '-', 'Jumlah keseluruhan bed', 'cyan')}
-            {renderMetric('Terisi', wardData.bed_occupied ?? '-', 'Bed yang sedang terpakai', 'rose')}
-            {renderMetric('Tersedia', wardData.bed_available ?? '-', 'Bed kosong siap ditempati', 'emerald')}
+        <div className="premium-dashboard-column">
+          <div className="premium-metric-grid">
+            {renderMetric('Total Kasur', wardData.bed_total ?? '-', 'Kapasitas', 'cyan')}
+            {renderMetric('Terisi', wardData.bed_occupied ?? '-', 'Terpakai', 'rose')}
+            {renderMetric('Tersedia', wardData.bed_available ?? '-', 'Kosong', 'emerald')}
           </div>
 
-          <div className="detail-panel">
-            <div className="detail-panel-title">
-              <MapPin size={18} /> Lokasi dan identitas ruangan
+          <div className="premium-detail-panel">
+            <div className="detail-header">
+              <MapPin size={20} className="detail-icon" />
+              <h3>Identitas Ruangan</h3>
             </div>
-            <div className="detail-list">
-              <div className="detail-row">
-                <span>Nama ruang</span>
-                <strong>{wardData.name || '-'}</strong>
+            <div className="premium-detail-grid">
+              <div className="premium-detail-item">
+                <span className="detail-lbl">Nama Ruang</span>
+                <strong className="detail-val">{wardData.name || '-'}</strong>
               </div>
-              <div className="detail-row">
-                <span>Kode layanan</span>
-                <strong>{wardData.code || targetLabel || '-'}</strong>
+              <div className="premium-detail-item">
+                <span className="detail-lbl">Kode Layanan</span>
+                <strong className="detail-val">{wardData.code || targetLabel || '-'}</strong>
               </div>
             </div>
           </div>
@@ -312,39 +315,51 @@ function App() {
     if (!wardData || !Array.isArray(wardData)) return null;
 
     return (
-      <section className="summary-layout">
-        <aside className="hero-panel hero-panel-summary">
-          <div className="panel-kicker">
-            <CalendarClock size={16} /> Summary Rawat Inap
+      <section className="premium-summary-layout">
+        <aside className="premium-hero-panel hero-summary">
+          <div className="panel-kicker premium-kicker">
+            <CalendarClock size={18} /> Rekapitulasi
           </div>
-          <h2 className="panel-title">Ketersediaan kamar semua kelas</h2>
-          <p className="panel-copy">
-            Tampilan ringkas untuk monitoring keseluruhan kamar, cocok untuk display utama di area perawat atau lobi.
+          <h2 className="premium-panel-title">Ketersediaan Kamar Seluruh Kelas</h2>
+          <p className="premium-panel-copy">
+            Monitoring sentral kapasitas dan keterisian seluruh kelas rawat inap rumah sakit.
           </p>
-          <div className="summary-hero-badge">
-            <ArrowRight size={16} /> Scroll daftar untuk melihat seluruh kelas
-          </div>
         </aside>
 
-        <div className="table-panel">
-          <table className="display-table">
+        <div className="premium-table-panel">
+          <table className="premium-table">
             <thead>
               <tr>
-                <th>Kelas kamar</th>
-                <th>Total kapasitas</th>
+                <th>Kelas Kamar</th>
+                <th>Kapasitas</th>
                 <th>Terisi</th>
                 <th>Tersedia</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
-              {wardData.map((ward, idx) => (
-                <tr key={idx}>
-                  <td className="table-strong">{ward.class_name || ward.name}</td>
-                  <td>{ward.bed_total}</td>
-                  <td className="text-danger">{ward.bed_occupied}</td>
-                  <td className="text-success">{ward.bed_available}</td>
-                </tr>
-              ))}
+              {wardData.map((ward, idx) => {
+                const perc = ward.bed_total ? (ward.bed_occupied / ward.bed_total) * 100 : 0;
+                let statusClass = 'status-ok';
+                let statusText = 'Aman';
+                if (perc >= 90) { statusClass = 'status-critical'; statusText = 'Penuh'; }
+                else if (perc >= 70) { statusClass = 'status-warning'; statusText = 'Hampir Penuh'; }
+
+                return (
+                  <tr key={idx} className="table-row-anim" style={{ animationDelay: `${idx * 0.05}s` }}>
+                    <td className="premium-strong-cell">
+                      <div className="cell-flex">
+                        <BedDouble size={16} className="cell-icon" />
+                        {ward.class_name || ward.name}
+                      </div>
+                    </td>
+                    <td><span className="badge-pill bg-slate">{ward.bed_total}</span></td>
+                    <td><span className="badge-pill bg-rose">{ward.bed_occupied}</span></td>
+                    <td><span className="badge-pill bg-emerald">{ward.bed_available}</span></td>
+                    <td><span className={`status-badge ${statusClass}`}>{statusText}</span></td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -482,8 +497,8 @@ function App() {
                 />
               ) : (
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="12" cy="8" r="4" fill="currentColor" fill-opacity="0.85"/>
-                  <path d="M4 20C4 16.13 7.58 13 12 13C16.42 13 20 16.13 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <circle cx="12" cy="8" r="4" fill="currentColor" fill-opacity="0.85" />
+                  <path d="M4 20C4 16.13 7.58 13 12 13C16.42 13 20 16.13 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                 </svg>
               )}
             </div>
@@ -540,7 +555,7 @@ function App() {
               <h2>Daftar Antrian Menunggu</h2>
               <span className="count-pill">{waitingPatients.length} Pasien</span>
             </div>
-            
+
             {waitingPatients.length === 0 ? (
               <div className="empty-queue-state">
                 <Clock3 size={28} />
