@@ -8,9 +8,9 @@ import {
   Building2,
   CalendarClock,
   Clock3,
-  MapPin,
   Stethoscope,
   Scissors,
+  UserCheck,
 } from 'lucide-react';
 
 declare global {
@@ -144,6 +144,9 @@ function App() {
           <div className="poli-name">{headerTitle}</div>
           <div className="poli-sub" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
             <span>{headerSub}</span>
+            <span style={{ fontSize: '11px', color: isOnline ? 'var(--green-600)' : 'var(--gray-500)', fontWeight: 600 }}>
+              {isOnline ? '● Connected' : '● Offline'}
+            </span>
           </div>
         </div>
 
@@ -244,22 +247,60 @@ function App() {
   const renderInpatientRoomView = () => {
     if (!wardData || Array.isArray(wardData)) return null;
 
+    // Normalize patients array (either provided by SIMRS API or built from bed_total / bed_occupied)
+    const rawPatients = Array.isArray(wardData.patients) && wardData.patients.length > 0
+      ? wardData.patients
+      : [];
+
+    const totalBedsCount = Math.max(wardData.bed_total || 2, 1);
+    const occupiedCount = wardData.bed_occupied ?? 0;
+
+    const patientList = Array.from({ length: totalBedsCount }).map((_, idx) => {
+      const existing = rawPatients[idx];
+      const isOccupied = idx < occupiedCount;
+
+      if (existing) {
+        return {
+          bedNumber: existing.bed_number || String(idx + 1).padStart(2, '0'),
+          patientName: existing.patient_name || 'Pasien Rawat Inap',
+          doctorName: existing.doctor_name || 'DPJP Spesialis',
+          isOccupied: true,
+        };
+      }
+
+      return {
+        bedNumber: String(idx + 1).padStart(2, '0'),
+        patientName: isOccupied ? (wardData.patient_name || 'Tn. Budi Santoso (Simulasi SIMRS)') : '- Kasur Kosong -',
+        doctorName: isOccupied ? (wardData.doctor_name || 'dr. Bambang P, Sp.PD (DPJP)') : '-',
+        isOccupied: isOccupied,
+      };
+    });
+
     return (
       <section className="poli-layout">
+        {/* KOLOM KIRI (35-38%): Hero Information Card + Metric Counters */}
         <div className="poli-left-column">
           <div className="hero-card-light">
             <div className="hero-badge">
-              <Building2 size={16} /> Ruang Spesifik
+              <Building2 size={16} /> DISPLAY PINTU KAMAR
             </div>
             <h2 className="hero-title">{wardData.name}</h2>
-            <p className="hero-copy">
-              Monitoring khusus kapasitas dan keterisian kasur pada ruangan ini.
-            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '4px' }}>
+              <span className="badge-pill" style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', fontSize: '12.5px', padding: '4px 12px' }}>
+                Kode: {wardData.room_code || wardData.code || '-'}
+              </span>
+              <span className="badge-pill" style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', fontSize: '12.5px', padding: '4px 12px' }}>
+                {wardData.building || 'Gedung Utama'}
+              </span>
+              <span className="badge-pill" style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', fontSize: '12.5px', padding: '4px 12px' }}>
+                {wardData.floor || 'Lantai 1'}
+              </span>
+            </div>
 
-            <div className="hero-progress-stack">
+            <div className="hero-progress-stack" style={{ marginTop: '16px' }}>
               <div className="hero-progress-box">
                 <div className="progress-meta">
-                  <span>Tingkat Keterisian</span>
+                  <span>Tingkat Keterisian Kamar</span>
                   <span>{occupancyRate}%</span>
                 </div>
                 <div className="hero-progress-track">
@@ -268,19 +309,17 @@ function App() {
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="poli-right-column">
           <div className="metric-card-grid">
             <div className="metric-card-light cyan">
               <span className="metric-lbl">Total Kasur</span>
               <span className="metric-val">{wardData.bed_total ?? '-'}</span>
-              <span className="metric-sub">Kapasitas Ruangan</span>
+              <span className="metric-sub">Kapasitas Kamar</span>
             </div>
             <div className="metric-card-light rose">
               <span className="metric-lbl">Kasur Terisi</span>
               <span className="metric-val">{wardData.bed_occupied ?? '-'}</span>
-              <span className="metric-sub">Pasien Dirawat</span>
+              <span className="metric-sub">Pasien Active</span>
             </div>
             <div className="metric-card-light emerald">
               <span className="metric-lbl">Kasur Tersedia</span>
@@ -288,28 +327,63 @@ function App() {
               <span className="metric-sub">Siap Pakai</span>
             </div>
           </div>
+        </div>
 
-          <div className="detail-panel-light">
-            <div className="detail-head">
-              <MapPin size={20} /> Identitas & Lokasi Ruangan
+        {/* KOLOM KANAN (62-65%): Dedicated Full-Height Table Card Pasien */}
+        <div className="poli-right-column">
+          <div className="card table-card" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <div className="table-card-head" style={{ paddingBottom: '16px', borderBottom: '1px solid var(--gray-100)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <UserCheck size={24} color="var(--blue-600)" />
+                <div>
+                  <h2 style={{ fontSize: '22px', fontWeight: 800 }}>Daftar Pasien di Kamar Ini</h2>
+                  <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 500 }}>
+                    Display informasi kamar pasien front-door
+                  </span>
+                </div>
+              </div>
+              <span className="count-pill" style={{ fontSize: '13.5px', padding: '6px 16px' }}>
+                {occupiedCount} dari {totalBedsCount} Bed Terisi
+              </span>
             </div>
-            <div className="detail-grid-light">
-              <div className="detail-item-light">
-                <span className="item-lbl">Nama Ruang</span>
-                <span className="item-val">{wardData.name || '-'}</span>
-              </div>
-              <div className="detail-item-light">
-                <span className="item-lbl">Kode Ruang</span>
-                <span className="item-val">{wardData.room_code || wardData.code || '-'}</span>
-              </div>
-              <div className="detail-item-light">
-                <span className="item-lbl">Gedung</span>
-                <span className="item-val">{wardData.building || '-'}</span>
-              </div>
-              <div className="detail-item-light">
-                <span className="item-lbl">Lantai</span>
-                <span className="item-val">{wardData.floor || '-'}</span>
-              </div>
+
+            <div className="table-scroll" style={{ flex: 1, overflowY: 'auto', marginTop: '12px' }}>
+              <table>
+                <thead>
+                  <tr>
+                    <th style={{ width: '100px' }}>No. Bed</th>
+                    <th>Nama Pasien</th>
+                    <th>Dokter Penanggung Jawab (DPJP)</th>
+                    <th style={{ textAlign: 'right' }}>Status Kasur</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {patientList.map((item, idx) => (
+                    <tr key={idx}>
+                      <td className="num" style={{ fontSize: '18px' }}>Bed {item.bedNumber}</td>
+                      <td className="name" style={{ fontSize: '17px', padding: '16px 18px' }}>
+                        {item.isOccupied ? (
+                          <span style={{ fontWeight: 700, color: 'var(--blue-900)' }}>{item.patientName}</span>
+                        ) : (
+                          <span style={{ color: 'var(--gray-500)', fontStyle: 'italic', fontWeight: 400 }}>{item.patientName}</span>
+                        )}
+                      </td>
+                      <td style={{ fontSize: '15px', color: 'var(--gray-700)', fontWeight: 500 }}>
+                        {item.doctorName}
+                      </td>
+                      <td className="status">
+                        {item.isOccupied ? (
+                          <span className="status-badge status-done" style={{ fontSize: '13px', padding: '6px 16px' }}>Terisi</span>
+                        ) : (
+                          <span className="status-badge" style={{ background: 'var(--gray-100)', color: 'var(--gray-500)', fontSize: '13px', padding: '6px 16px' }}>
+                            Tersedia
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

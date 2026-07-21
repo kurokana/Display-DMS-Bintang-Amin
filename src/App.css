@@ -1245,6 +1245,7 @@
   flex-direction: column;
   gap: 20px;
   min-height: 0;
+  height: 100%;
 }
 
 .light-theme .card {
