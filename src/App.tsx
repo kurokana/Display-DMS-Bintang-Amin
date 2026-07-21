@@ -4,18 +4,13 @@ import Pusher from 'pusher-js';
 import './App.css';
 import {
   AlertCircle,
-  ArrowRight,
   BedDouble,
   Building2,
   CalendarClock,
   Clock3,
   MapPin,
-  ShieldPlus,
-  Sparkles,
   Stethoscope,
   Scissors,
-  Wifi,
-  WifiOff,
 } from 'lucide-react';
 
 declare global {
@@ -112,143 +107,132 @@ function App() {
     { done: 0, running: 0, waiting: 0 },
   );
 
-  const renderStatusPill = () => (
-    <div className="connection-status-pill">
-      <span className={`dot ${isOnline ? 'dot-online' : 'dot-offline'}`}></span>
-      {isOnline ? <Wifi size={14} /> : <WifiOff size={14} />}
-      <span>{isOnline ? 'Tersambung ke middleware' : 'Koneksi terputus'}</span>
-    </div>
-  );
-
   const renderHeader = () => {
+    let headerTitle = 'Poliklinik';
+    let headerSub = 'Layanan Poliklinik';
+
     if (targetType === 'polyclinic') {
-      return (
-        <header>
-          <div className="brand">
-            <div className="logo">
-              <img src="/logo-fallback.png" alt="Logo RSBA" />
-            </div>
-            <div>
-              <div className="rs-name">Rumah Sakit Bintang Amin</div>
-              <div className="rs-tag">We Care, We Cure</div>
-            </div>
-          </div>
-
-          <div className="poli-title">
-            <div className="poli-name">{poliData?.polyclinic_name || 'Poliklinik'}</div>
-            <div className="poli-sub">{poliData?.polyclinic_code || 'Poliklinik'}</div>
-          </div>
-
-          <div className="clock-block">
-            <div className="time" id="clock">{currentTime}</div>
-            <div className="date" id="dateStr">{currentDate}</div>
-          </div>
-        </header>
-      );
+      headerTitle = poliData?.polyclinic_name || 'Poliklinik';
+      headerSub = poliData?.polyclinic_code || 'Layanan Poliklinik';
+    } else if (targetType === 'ward_class') {
+      headerTitle = wardData?.class_name || wardData?.name || targetLabel || 'Rawat Inap';
+      headerSub = `Kamar Rawat Inap`;
+    } else if (targetType === 'inpatient_room') {
+      headerTitle = wardData?.name || targetLabel || 'Ruang Rawat Inap';
+      headerSub = `Ruangan Rawat Inap`;
+    } else if (targetType === 'ward_summary') {
+      headerTitle = 'Ketersediaan Kamar Rawat Inap';
+      headerSub = `Rekapitulasi Semua Kelas`;
+    } else if (targetType === 'operating_room') {
+      headerTitle = orName || targetLabel || 'Jadwal Kamar Operasi';
+      headerSub = `Kamar Operasi`;
     }
 
     return (
-      <header className="screen-header">
-        <div className="brand-block">
-          <img src="/logo-fallback.png" alt="Logo RSBA" className="brand-mark-img" />
+      <header>
+        <div className="brand">
+          <div className="logo">
+            <img src="/logo-fallback.png" alt="Logo RSBA" />
+          </div>
           <div>
-            <div className="brand-kicker">Rumah Sakit Bintang Amin</div>
-            <h1 className="device-title">{deviceName}</h1>
-            <div className="header-meta">
-              <span className="device-badge">DISPLAY {displayId}</span>
-              {targetLabel && (
-                <span className="target-chip">
-                  <MapPin size={14} /> {targetLabel}
-                </span>
-              )}
-            </div>
-            {renderStatusPill()}
+            <div className="rs-name">Rumah Sakit Bintang Amin</div>
+            <div className="rs-tag">We Care, We Cure</div>
           </div>
         </div>
 
-        <div className="clock-panel">
-          <div className="clock-time">{currentTime}</div>
-          <div className="clock-date">{currentDate}</div>
-          <div className="clock-subtitle">
-            <Sparkles size={14} /> Display informasi layanan pasien
+        <div className="poli-title">
+          <div className="poli-name">{headerTitle}</div>
+          <div className="poli-sub" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <span>{headerSub}</span>
           </div>
+        </div>
+
+        <div className="clock-block">
+          <div className="time" id="clock">{currentTime}</div>
+          <div className="date" id="dateStr">{currentDate}</div>
         </div>
       </header>
     );
   };
 
-  const renderMetric = (label: string, value: string | number, hint: string, tone: 'cyan' | 'emerald' | 'amber' | 'rose') => (
-    <div className={`premium-metric premium-metric-${tone}`}>
-      <div className="premium-metric-glow"></div>
-      <div className="premium-metric-content">
-        <div className="metric-label">{label}</div>
-        <div className="metric-value"><span className="value-number">{value}</span></div>
-        <div className="metric-hint">{hint}</div>
-      </div>
-    </div>
-  );
-
   const renderWardView = () => {
     if (!wardData || Array.isArray(wardData)) return null;
 
     return (
-      <section className="premium-content-grid">
-        <aside className="premium-hero-panel hero-ward">
-          <div className="panel-kicker premium-kicker">
-            <BedDouble size={18} /> Rawat Inap
-          </div>
-          <h2 className="premium-panel-title">{wardData.class_name || wardData.name || targetLabel}</h2>
-          <p className="premium-panel-copy">
-            Informasi ketersediaan kamar dibuat untuk dibaca cepat dari kejauhan.
-          </p>
+      <section className="poli-layout">
+        <div className="poli-left-column">
+          <div className="hero-card-light">
+            <div className="hero-badge">
+              <BedDouble size={16} /> Rawat Inap
+            </div>
+            <h2 className="hero-title">{wardData.class_name || wardData.name || targetLabel}</h2>
+            <p className="hero-copy">
+              Informasi ketersediaan dan keterisian tempat tidur kelas rawat inap.
+            </p>
 
-          <div className="premium-progress-group">
-            <div className="premium-progress-item">
-              <div className="progress-head">
-                <span>Keterisian</span>
-                <strong className="text-rose-400">{occupancyRate}%</strong>
+            <div className="hero-progress-stack">
+              <div className="hero-progress-box">
+                <div className="progress-meta">
+                  <span>Keterisian</span>
+                  <span>{occupancyRate}%</span>
+                </div>
+                <div className="hero-progress-track">
+                  <div className="hero-progress-fill fill-rose-light" style={{ width: `${occupancyRate}%` }}></div>
+                </div>
               </div>
-              <div className="premium-progress-track">
-                <div className="premium-progress-fill fill-rose" style={{ width: `${occupancyRate}%` }}></div>
+
+              <div className="hero-progress-box">
+                <div className="progress-meta">
+                  <span>Ketersediaan</span>
+                  <span>{availableRate}%</span>
+                </div>
+                <div className="hero-progress-track">
+                  <div className="hero-progress-fill fill-emerald-light" style={{ width: `${availableRate}%` }}></div>
+                </div>
               </div>
             </div>
+          </div>
+        </div>
 
-            <div className="premium-progress-item">
-              <div className="progress-head">
-                <span>Ketersediaan</span>
-                <strong className="text-emerald-400">{availableRate}%</strong>
-              </div>
-              <div className="premium-progress-track">
-                <div className="premium-progress-fill fill-emerald" style={{ width: `${availableRate}%` }}></div>
-              </div>
+        <div className="poli-right-column">
+          <div className="metric-card-grid">
+            <div className="metric-card-light cyan">
+              <span className="metric-lbl">Total Bed</span>
+              <span className="metric-val">{wardData.bed_total ?? '-'}</span>
+              <span className="metric-sub">Kapasitas Keseluruhan</span>
+            </div>
+            <div className="metric-card-light rose">
+              <span className="metric-lbl">Bed Terisi</span>
+              <span className="metric-val">{wardData.bed_occupied ?? '-'}</span>
+              <span className="metric-sub">Pasien Aktif</span>
+            </div>
+            <div className="metric-card-light emerald">
+              <span className="metric-lbl">Bed Tersedia</span>
+              <span className="metric-val">{wardData.bed_available ?? '-'}</span>
+              <span className="metric-sub">Sisa Tempat Kosong</span>
             </div>
           </div>
-        </aside>
 
-        <div className="premium-dashboard-column">
-          <div className="premium-metric-grid">
-            {renderMetric('Total Bed', wardData.bed_total ?? '-', 'Kapasitas keseluruhan', 'cyan')}
-            {renderMetric('Terisi', wardData.bed_occupied ?? '-', 'Pasien aktif', 'rose')}
-            {renderMetric('Tersedia', wardData.bed_available ?? '-', 'Sisa tempat', 'emerald')}
-          </div>
-
-          <div className="premium-detail-panel">
-            <div className="detail-header">
-              <Stethoscope size={20} className="detail-icon" />
-              <h3>Ringkasan Lokasi</h3>
+          <div className="detail-panel-light">
+            <div className="detail-head">
+              <Stethoscope size={20} /> Ringkasan Informasi Kelas & Lokasi
             </div>
-            <div className="premium-detail-grid">
-              <div className="premium-detail-item">
-                <span className="detail-lbl">Nama Kelas</span>
-                <strong className="detail-val">{wardData.class_name || wardData.name || '-'}</strong>
+            <div className="detail-grid-light">
+              <div className="detail-item-light">
+                <span className="item-lbl">Nama Kelas</span>
+                <span className="item-val">{wardData.class_name || wardData.name || '-'}</span>
               </div>
-              <div className="premium-detail-item">
-                <span className="detail-lbl">Gedung</span>
-                <strong className="detail-val">{wardData.building || '-'}</strong>
+              <div className="detail-item-light">
+                <span className="item-lbl">Kode BPJS</span>
+                <span className="item-val">{wardData.bpjs_class_code || '-'}</span>
               </div>
-              <div className="premium-detail-item">
-                <span className="detail-lbl">Lantai</span>
-                <strong className="detail-val">{wardData.floor || '-'}</strong>
+              <div className="detail-item-light">
+                <span className="item-lbl">Gedung</span>
+                <span className="item-val">{wardData.building || '-'}</span>
+              </div>
+              <div className="detail-item-light">
+                <span className="item-lbl">Lantai</span>
+                <span className="item-val">{wardData.floor || '-'}</span>
               </div>
             </div>
           </div>
@@ -261,48 +245,70 @@ function App() {
     if (!wardData || Array.isArray(wardData)) return null;
 
     return (
-      <section className="premium-content-grid">
-        <aside className="premium-hero-panel hero-inpatient">
-          <div className="panel-kicker premium-kicker">
-            <Building2 size={18} /> Ruang Spesifik
-          </div>
-          <h2 className="premium-panel-title">{wardData.name}</h2>
-          <p className="premium-panel-copy">
-            Monitor khusus ruangan untuk visibilitas cepat.
-          </p>
-
-          <div className="premium-info-stack">
-            <div className="premium-info-item">
-              <span className="info-lbl">Gedung</span>
-              <strong className="info-val">{wardData.building}</strong>
+      <section className="poli-layout">
+        <div className="poli-left-column">
+          <div className="hero-card-light">
+            <div className="hero-badge">
+              <Building2 size={16} /> Ruang Spesifik
             </div>
-            <div className="premium-info-item">
-              <span className="info-lbl">Lantai</span>
-              <strong className="info-val">{wardData.floor}</strong>
-            </div>
-          </div>
-        </aside>
+            <h2 className="hero-title">{wardData.name}</h2>
+            <p className="hero-copy">
+              Monitoring khusus kapasitas dan keterisian kasur pada ruangan ini.
+            </p>
 
-        <div className="premium-dashboard-column">
-          <div className="premium-metric-grid">
-            {renderMetric('Total Kasur', wardData.bed_total ?? '-', 'Kapasitas', 'cyan')}
-            {renderMetric('Terisi', wardData.bed_occupied ?? '-', 'Terpakai', 'rose')}
-            {renderMetric('Tersedia', wardData.bed_available ?? '-', 'Kosong', 'emerald')}
-          </div>
-
-          <div className="premium-detail-panel">
-            <div className="detail-header">
-              <MapPin size={20} className="detail-icon" />
-              <h3>Identitas Ruangan</h3>
-            </div>
-            <div className="premium-detail-grid">
-              <div className="premium-detail-item">
-                <span className="detail-lbl">Nama Ruang</span>
-                <strong className="detail-val">{wardData.name || '-'}</strong>
+            <div className="hero-progress-stack">
+              <div className="hero-progress-box">
+                <div className="progress-meta">
+                  <span>Tingkat Keterisian</span>
+                  <span>{occupancyRate}%</span>
+                </div>
+                <div className="hero-progress-track">
+                  <div className="hero-progress-fill fill-rose-light" style={{ width: `${occupancyRate}%` }}></div>
+                </div>
               </div>
-              <div className="premium-detail-item">
-                <span className="detail-lbl">Kode Layanan</span>
-                <strong className="detail-val">{wardData.code || targetLabel || '-'}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div className="poli-right-column">
+          <div className="metric-card-grid">
+            <div className="metric-card-light cyan">
+              <span className="metric-lbl">Total Kasur</span>
+              <span className="metric-val">{wardData.bed_total ?? '-'}</span>
+              <span className="metric-sub">Kapasitas Ruangan</span>
+            </div>
+            <div className="metric-card-light rose">
+              <span className="metric-lbl">Kasur Terisi</span>
+              <span className="metric-val">{wardData.bed_occupied ?? '-'}</span>
+              <span className="metric-sub">Pasien Dirawat</span>
+            </div>
+            <div className="metric-card-light emerald">
+              <span className="metric-lbl">Kasur Tersedia</span>
+              <span className="metric-val">{wardData.bed_available ?? '-'}</span>
+              <span className="metric-sub">Siap Pakai</span>
+            </div>
+          </div>
+
+          <div className="detail-panel-light">
+            <div className="detail-head">
+              <MapPin size={20} /> Identitas & Lokasi Ruangan
+            </div>
+            <div className="detail-grid-light">
+              <div className="detail-item-light">
+                <span className="item-lbl">Nama Ruang</span>
+                <span className="item-val">{wardData.name || '-'}</span>
+              </div>
+              <div className="detail-item-light">
+                <span className="item-lbl">Kode Ruang</span>
+                <span className="item-val">{wardData.room_code || wardData.code || '-'}</span>
+              </div>
+              <div className="detail-item-light">
+                <span className="item-lbl">Gedung</span>
+                <span className="item-val">{wardData.building || '-'}</span>
+              </div>
+              <div className="detail-item-light">
+                <span className="item-lbl">Lantai</span>
+                <span className="item-val">{wardData.floor || '-'}</span>
               </div>
             </div>
           </div>
@@ -314,54 +320,73 @@ function App() {
   const renderWardSummaryView = () => {
     if (!wardData || !Array.isArray(wardData)) return null;
 
+    const totalBeds = wardData.reduce((acc, w) => acc + (w.bed_total || 0), 0);
+    const totalOccupied = wardData.reduce((acc, w) => acc + (w.bed_occupied || 0), 0);
+    const totalAvailable = wardData.reduce((acc, w) => acc + (w.bed_available || 0), 0);
+
     return (
-      <section className="premium-summary-layout">
-        <aside className="premium-hero-panel hero-summary">
-          <div className="panel-kicker premium-kicker">
-            <CalendarClock size={18} /> Rekapitulasi
+      <section style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div className="summary-hero-card">
+          <div>
+            <h2>Ketersediaan Kamar Rawat Inap (Semua Kelas)</h2>
+            <p>Monitoring sentral kapasitas dan keterisian tempat tidur seluruh kelas rawat inap RSBA.</p>
           </div>
-          <h2 className="premium-panel-title">Ketersediaan Kamar Seluruh Kelas</h2>
-          <p className="premium-panel-copy">
-            Monitoring sentral kapasitas dan keterisian seluruh kelas rawat inap rumah sakit.
-          </p>
-        </aside>
+          <div className="summary-chips-wrap">
+            <div className="summary-stat-chip">
+              <span>Total Bed</span>
+              <strong>{totalBeds}</strong>
+            </div>
+            <div className="summary-stat-chip">
+              <span>Terisi</span>
+              <strong>{totalOccupied}</strong>
+            </div>
+            <div className="summary-stat-chip">
+              <span>Tersedia</span>
+              <strong>{totalAvailable}</strong>
+            </div>
+          </div>
+        </div>
 
-        <div className="premium-table-panel">
-          <table className="premium-table">
-            <thead>
-              <tr>
-                <th>Kelas Kamar</th>
-                <th>Kapasitas</th>
-                <th>Terisi</th>
-                <th>Tersedia</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {wardData.map((ward, idx) => {
-                const perc = ward.bed_total ? (ward.bed_occupied / ward.bed_total) * 100 : 0;
-                let statusClass = 'status-ok';
-                let statusText = 'Aman';
-                if (perc >= 90) { statusClass = 'status-critical'; statusText = 'Penuh'; }
-                else if (perc >= 70) { statusClass = 'status-warning'; statusText = 'Hampir Penuh'; }
+        <div className="card table-card">
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Kelas Kamar</th>
+                  <th style={{ textAlign: 'center' }}>Kapasitas</th>
+                  <th style={{ textAlign: 'center' }}>Terisi</th>
+                  <th style={{ textAlign: 'center' }}>Tersedia</th>
+                  <th style={{ textAlign: 'right' }}>Status Keterisian</th>
+                </tr>
+              </thead>
+              <tbody>
+                {wardData.map((ward, idx) => {
+                  const perc = ward.bed_total ? (ward.bed_occupied / ward.bed_total) * 100 : 0;
+                  let statusText = 'Aman';
+                  let statusClass = 'status-done';
+                  if (perc >= 90) { statusClass = 'status-waiting'; statusText = 'Penuh'; }
+                  else if (perc >= 70) { statusClass = 'status-waiting'; statusText = 'Hampir Penuh'; }
 
-                return (
-                  <tr key={idx} className="table-row-anim" style={{ animationDelay: `${idx * 0.05}s` }}>
-                    <td className="premium-strong-cell">
-                      <div className="cell-flex">
-                        <BedDouble size={16} className="cell-icon" />
-                        {ward.class_name || ward.name}
-                      </div>
-                    </td>
-                    <td><span className="badge-pill bg-slate">{ward.bed_total}</span></td>
-                    <td><span className="badge-pill bg-rose">{ward.bed_occupied}</span></td>
-                    <td><span className="badge-pill bg-emerald">{ward.bed_available}</span></td>
-                    <td><span className={`status-badge ${statusClass}`}>{statusText}</span></td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                  return (
+                    <tr key={idx}>
+                      <td className="name">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <BedDouble size={18} color="var(--blue-600)" />
+                          <span>{ward.class_name || ward.name}</span>
+                        </div>
+                      </td>
+                      <td className="num" style={{ textAlign: 'center' }}>{ward.bed_total}</td>
+                      <td className="num" style={{ textAlign: 'center', color: 'var(--red-500)' }}>{ward.bed_occupied}</td>
+                      <td className="num" style={{ textAlign: 'center', color: 'var(--green-600)' }}>{ward.bed_available}</td>
+                      <td className="status">
+                        <span className={`status-badge ${statusClass}`}>{statusText}</span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
     );
@@ -369,66 +394,77 @@ function App() {
 
   const renderOperatingRoomView = () => {
     return (
-      <section className="or-layout">
-        <aside className="hero-panel hero-panel-or">
-          <div className="panel-kicker">
-            <Scissors size={16} /> Ruang Operasi
+      <section className="poli-layout">
+        <div className="poli-left-column">
+          <div className="hero-card-light">
+            <div className="hero-badge">
+              <Scissors size={16} /> Kamar Operasi
+            </div>
+            <h2 className="hero-title">{orName || targetLabel || 'Kamar Operasi'}</h2>
+            <p className="hero-copy">
+              Jadwal dan status pelaksanaan tindakan operasi pasien terkini.
+            </p>
           </div>
-          <h2 className="panel-title">{orName || targetLabel || 'Jadwal Tindakan Operasi'}</h2>
-          <p className="panel-copy">
-            Prioritaskan visibilitas jadwal tindakan, status pasien, dan waktu mulai agar mudah dibaca oleh tim bedah dan ruang operasi.
-          </p>
 
-          <div className="or-stats-grid">
-            <div className="or-stat">
+          <div className="or-counter-grid">
+            <div className="or-counter-card">
               <span>Menunggu</span>
               <strong>{scheduleCounts.waiting}</strong>
             </div>
-            <div className="or-stat">
+            <div className="or-counter-card">
               <span>Berjalan</span>
-              <strong>{scheduleCounts.running}</strong>
+              <strong style={{ color: 'var(--blue-600)' }}>{scheduleCounts.running}</strong>
             </div>
-            <div className="or-stat">
+            <div className="or-counter-card">
               <span>Selesai</span>
-              <strong>{scheduleCounts.done}</strong>
+              <strong style={{ color: 'var(--green-600)' }}>{scheduleCounts.done}</strong>
             </div>
           </div>
-        </aside>
+        </div>
 
-        <div className="table-panel table-panel-or">
-          {orData.length === 0 ? (
-            <div className="empty-state">
-              <Clock3 size={32} />
-              <p>Belum ada jadwal tindakan untuk hari ini.</p>
+        <div className="poli-right-column">
+          <div className="card table-card">
+            <div className="table-card-head">
+              <h2>Jadwal Tindakan Operasi Hari Ini</h2>
+              <span className="count-pill">{orData.length} Pasien</span>
             </div>
-          ) : (
-            <table className="display-table display-table-or">
-              <thead>
-                <tr>
-                  <th>ID Jadwal</th>
-                  <th>Nama pasien</th>
-                  <th>Rencana mulai</th>
-                  <th>Mulai aktual</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orData.map((sch) => (
-                  <tr key={sch.bpjs_schedule_id}>
-                    <td className="mono-cell">{sch.bpjs_schedule_id}</td>
-                    <td className="table-strong">{sch.patient_name}</td>
-                    <td>{new Date(sch.scheduled_start_at).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}</td>
-                    <td>{sch.actual_start_at ? new Date(sch.actual_start_at).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
-                    <td>
-                      {sch.status === 'selesai' && <span className="status-badge status-success">Selesai</span>}
-                      {sch.status === 'sedang_dilaksanakan' && <span className="status-badge status-warning">Sedang Jalan</span>}
-                      {sch.status === 'menunggu' && <span className="status-badge status-muted">Menunggu</span>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+
+            {orData.length === 0 ? (
+              <div className="empty-queue-state">
+                <Clock3 size={32} />
+                <p>Belum ada jadwal tindakan operasi untuk hari ini.</p>
+              </div>
+            ) : (
+              <div className="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID Jadwal</th>
+                      <th>Nama Pasien</th>
+                      <th>Rencana Mulai</th>
+                      <th>Mulai Aktual</th>
+                      <th style={{ textAlign: 'right' }}>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orData.map((sch) => (
+                      <tr key={sch.bpjs_schedule_id}>
+                        <td className="num">{sch.bpjs_schedule_id}</td>
+                        <td className="name">{sch.patient_name}</td>
+                        <td>{new Date(sch.scheduled_start_at).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}</td>
+                        <td>{sch.actual_start_at ? new Date(sch.actual_start_at).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                        <td className="status">
+                          {sch.status === 'selesai' && <span className="status-badge status-done">Selesai</span>}
+                          {sch.status === 'sedang_dilaksanakan' && <span className="status-badge status-waiting">Sedang Jalan</span>}
+                          {sch.status === 'menunggu' && <span className="status-badge" style={{ background: 'var(--gray-100)', color: 'var(--gray-700)' }}>Menunggu</span>}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       </section>
     );
@@ -806,15 +842,17 @@ function App() {
 
   // ─── Main display screen ─────────────────────────────────────────────────────
   return (
-    <div className={`screen-container ${targetType === 'polyclinic' ? 'light-theme' : ''}`}>
+    <div className="screen-container light-theme">
       {renderHeader()}
 
-      <main className={targetType === 'polyclinic' ? 'body-wrap' : 'board-area'}>
+      <main className="body-wrap" style={targetType === 'ward_summary' ? { gridTemplateColumns: '1fr' } : {}}>
         {errorMsg && (
-          <div className="error-card">
-            <AlertCircle size={48} />
-            <h2>Gagal memuat display</h2>
-            <p>{errorMsg}</p>
+          <div className="poli-closed-container" style={{ gridColumn: '1 / -1', padding: '40px' }}>
+            <div className="poli-closed-card">
+              <AlertCircle size={48} color="var(--red-500)" />
+              <h2>Gagal Memuat Display</h2>
+              <p className="poli-closed-message">{errorMsg}</p>
+            </div>
           </div>
         )}
 
@@ -825,22 +863,30 @@ function App() {
         {!errorMsg && targetType === 'polyclinic' && renderPolyclinicView()}
 
         {!errorMsg && !targetType && (
-          <div className="empty-mapping-card">
-            <div className="empty-mapping-icon">
-              <AlertCircle size={44} />
+          <div className="poli-closed-container" style={{ gridColumn: '1 / -1', padding: '60px 20px' }}>
+            <div className="poli-closed-card" style={{ maxWidth: '560px', margin: '0 auto' }}>
+              <div className="poli-closed-icon">
+                <AlertCircle size={56} color="var(--blue-600)" />
+              </div>
+              <span className="poli-closed-tag">Status Display: Standby</span>
+              <h2>Belum Ada Mapping Monitor</h2>
+              <div className="poli-closed-divider"></div>
+              <p className="poli-closed-message">
+                Monitor <strong>{displayId}</strong> ({deviceName}) telah terhubung tetapi belum di-mapping ke data poliklinik, rawat inap, atau ruang operasi dari Backoffice Admin.
+              </p>
+              <p className="poli-closed-submessage">
+                Silakan buka menu <strong>Display & Mapping</strong> pada dashboard Backoffice DMS untuk menghubungkan monitor ini.
+              </p>
             </div>
-            <h2>Belum ada mapping display</h2>
-            <p>Monitor ini belum diarahkan ke data rawat inap atau ruang operasi dari Backoffice.</p>
           </div>
         )}
       </main>
 
       <footer className="screen-footer">
-        <div className="footer-left">
-          <span className="footer-label">DMS Display Client</span>
-          <span>{displayId}</span>
+        <div>
+          <span className="footer-label">Rumah Sakit Bintang Amin • We Care, We Cure</span>
         </div>
-        <div className="footer-right">
+        <div>
           <span>Terakhir diperbarui: {lastUpdated || '-'}</span>
         </div>
       </footer>
