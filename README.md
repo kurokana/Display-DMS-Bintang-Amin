@@ -1,32 +1,52 @@
-# React + TypeScript + Vite
+# DMS Display - Kiosk Client STB / Smart TV Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Sub-project `display` adalah aplikasi frontend Single Page Application (SPA) berbasis React murni yang dirancang untuk berjalan dalam **Kiosk Mode** pada perangkat Armbian STB / Smart TV di area kamar inap, ruang operasi, maupun ruang tunggu poliklinik RS Bintang Amin.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠️ Tech Stack & Dev Server
 
-## React Compiler
+- **Framework:** React 19 + TypeScript + Vite
+- **Styling:** TailwindCSS + Lucide Icons
+- **Real-Time Client:** Laravel Echo (`pusher-js`)
+- **Dev Port:** `http://localhost:5173`
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the Oxlint configuration
+## 🔑 Fitur Utama & Arsitektur React
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+1. **Sinkronisasi Data Real-Time (WebSocket + Fallback Polling)**:
+   - Terhubung ke Laravel Reverb WebSocket Server pada `middlewaredms.test:8080`.
+   - Mendengarkan channel public `displays` (update global bangsal/kamar) dan channel spesifik device `display.{ID}` (update mapping tayangan monitor).
+   - Dilengkapi fallback polling otomatis setiap 15 detik jika koneksi WebSocket terputus.
+2. **Periodic Heartbeat Signal**:
+   - Rutin mengirimkan HTTP POST ke `/display/{displayId}/heartbeat` setiap 10 detik untuk menginformasikan status *online* dan IP Address device ke `middleware`.
+3. **Pencegahan Stale Closure (`src/App.tsx`)**:
+   - Menggunakan `useCallback` pada fungsi `fetchState()` dan pengelolaan handler WebSocket listener agar tidak mengalami bug *stale state closure* saat event Echo diterima.
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+---
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## 🚀 Cara Jalankan di Development
+
+1. **Instalasi Dependencies**:
+   ```bash
+   npm install
+   ```
+2. **Jalankan Dev Server**:
+   ```bash
+   npm run dev
+   ```
+   Aplikasi akan berjalan di `http://localhost:5173`.
+
+3. **Build untuk Production**:
+   ```bash
+   npm run build
+   ```
+   Hasil kompilasi file static HTML/JS akan tersimpan di folder `dist/` untuk di-deploy ke Web Server Nginx.
+
+---
+
+## 📚 Referensi Arsitektur
+
+- 🗺️ **[PROJECT_MAP.md](file:///d:/Intern/RSBA%20-%20Kerja%20Praktik/DMS/Tahap%201/PROJECT_MAP.md)**
+- 🚀 **[HANDOVER_RUNNING_GUIDE.md](file:///d:/Intern/RSBA%20-%20Kerja%20Praktik/DMS/Tahap%201/HANDOVER_RUNNING_GUIDE.md)**
