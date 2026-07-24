@@ -923,9 +923,11 @@ function App() {
         {errorMsg && (
           <div className="poli-closed-container" style={{ gridColumn: '1 / -1', padding: '40px' }}>
             <div className="poli-closed-card">
-              <AlertCircle size={48} color="var(--red-500)" />
-              <h2>Gagal Memuat Display</h2>
-              <p className="poli-closed-message">{errorMsg}</p>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <AlertCircle size={48} color="var(--red-500)" />
+              </div>
+              <h2 style={{ textAlign: 'center' }}>Gagal Memuat Display</h2>
+              <p className="poli-closed-message" style={{ textAlign: 'center' }}>{errorMsg}</p>
             </div>
           </div>
         )}
