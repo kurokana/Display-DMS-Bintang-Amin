@@ -270,7 +270,7 @@ function App() {
 
       return {
         bedNumber: String(idx + 1).padStart(2, '0'),
-        patientName: isOccupied ? (wardData.patient_name || 'Tn. Budi Santoso (Simulasi SIMRS)') : '- Kasur Kosong -',
+        patientName: isOccupied ? (wardData.patient_name || 'Tn. Budi Santoso (Simulasi SIMRS)') : '- Bed Kosong -',
         doctorName: isOccupied ? (wardData.doctor_name || 'dr. Bambang P, Sp.PD (DPJP)') : '-',
         isOccupied: isOccupied,
       };
@@ -312,17 +312,17 @@ function App() {
 
           <div className="metric-card-grid">
             <div className="metric-card-light cyan">
-              <span className="metric-lbl">Total Kasur</span>
+              <span className="metric-lbl">Total Bed</span>
               <span className="metric-val">{wardData.bed_total ?? '-'}</span>
               <span className="metric-sub">Kapasitas Kamar</span>
             </div>
             <div className="metric-card-light rose">
-              <span className="metric-lbl">Kasur Terisi</span>
+              <span className="metric-lbl">Bed Terisi</span>
               <span className="metric-val">{wardData.bed_occupied ?? '-'}</span>
               <span className="metric-sub">Pasien Active</span>
             </div>
             <div className="metric-card-light emerald">
-              <span className="metric-lbl">Kasur Tersedia</span>
+              <span className="metric-lbl">Bed Tersedia</span>
               <span className="metric-val">{wardData.bed_available ?? '-'}</span>
               <span className="metric-sub">Siap Pakai</span>
             </div>
@@ -337,9 +337,6 @@ function App() {
                 <UserCheck size={24} color="var(--blue-600)" />
                 <div>
                   <h2 style={{ fontSize: '22px', fontWeight: 800 }}>Daftar Pasien di Kamar Ini</h2>
-                  <span style={{ fontSize: '13px', color: 'var(--gray-500)', fontWeight: 500 }}>
-                    Display informasi kamar pasien front-door
-                  </span>
                 </div>
               </div>
               <span className="count-pill" style={{ fontSize: '13.5px', padding: '6px 16px' }}>
