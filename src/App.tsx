@@ -960,7 +960,7 @@ function App() {
 
       <footer className="screen-footer">
         <div>
-          <span className="footer-label">Rumah Sakit Bintang Amin • We Care, We Cure</span>
+          <span className="footer-label">Rumah Sakit Bintang Amin • We Care, We Cure | RSBA</span>
         </div>
         <div>
           <span>Terakhir diperbarui: {lastUpdated || '-'}</span>
