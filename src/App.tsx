@@ -75,6 +75,111 @@ function App() {
   const displayIdRef = useRef(displayId);
   useEffect(() => { displayIdRef.current = displayId; }, [displayId]);
 
+  // Ref & Auto-Scroll Engine for Inpatient Room View (inpatient_room)
+  const inpatientScrollRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (targetType !== 'inpatient_room' || !wardData) return;
+
+    let animationFrameId: number;
+    let scrollTimeoutId: any;
+    let debounceTimeoutId: any;
+    let isCancelled = false;
+
+    const startAutoScroll = () => {
+      const container = inpatientScrollRef.current;
+      if (!container || isCancelled) return;
+
+      const scrollHeight = container.scrollHeight;
+      const clientHeight = container.clientHeight;
+      const maxScroll = scrollHeight - clientHeight;
+
+      // Instant snap reset to 0 if content fits in 1 screen or maxScroll <= 0
+      if (maxScroll <= 0) {
+        if (container.scrollTop !== 0) {
+          container.scrollTop = 0;
+        }
+        return;
+      }
+
+      // Out-of-bounds safety clamp (e.g. beds reduced from 12 to 3)
+      if (container.scrollTop > maxScroll) {
+        container.scrollTop = 0;
+      }
+
+      let direction: 'down' | 'up' = 'down';
+      let lastTime: number | null = null;
+      // Proportional speed: pixels per second
+      const baseSpeed = Math.max(15, Math.min(45, maxScroll / 15));
+
+      const step = (timestamp: number) => {
+        if (isCancelled || !inpatientScrollRef.current) return;
+        const el = inpatientScrollRef.current;
+        if (!el) return;
+
+        if (!lastTime) lastTime = timestamp;
+        const deltaTime = (timestamp - lastTime) / 1000;
+        lastTime = timestamp;
+
+        const currentMax = el.scrollHeight - el.clientHeight;
+        if (currentMax <= 0) {
+          el.scrollTop = 0;
+          return;
+        }
+
+        if (direction === 'down') {
+          el.scrollTop += baseSpeed * deltaTime;
+          if (el.scrollTop >= currentMax - 1) {
+            el.scrollTop = currentMax;
+            direction = 'up';
+            // Pause 4s at bottom
+            scrollTimeoutId = setTimeout(() => {
+              if (!isCancelled) {
+                lastTime = null;
+                animationFrameId = requestAnimationFrame(step);
+              }
+            }, 4000);
+            return;
+          }
+        } else {
+          // Fast smooth scroll back to top
+          el.scrollTop -= baseSpeed * 3 * deltaTime;
+          if (el.scrollTop <= 0) {
+            el.scrollTop = 0;
+            direction = 'down';
+            // Pause 4s at top
+            scrollTimeoutId = setTimeout(() => {
+              if (!isCancelled) {
+                lastTime = null;
+                animationFrameId = requestAnimationFrame(step);
+              }
+            }, 4000);
+            return;
+          }
+        }
+
+        animationFrameId = requestAnimationFrame(step);
+      };
+
+      // Initial pause 3s at top
+      scrollTimeoutId = setTimeout(() => {
+        if (!isCancelled) {
+          animationFrameId = requestAnimationFrame(step);
+        }
+      }, 3000);
+    };
+
+    // Debounce 600ms on data changes to prevent race conditions during rapid WebSocket updates
+    debounceTimeoutId = setTimeout(startAutoScroll, 600);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(debounceTimeoutId);
+      clearTimeout(scrollTimeoutId);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [wardData, targetType]);
+
   // Clock tick
   useEffect(() => {
     const updateTime = () => {
@@ -344,7 +449,7 @@ function App() {
               </span>
             </div>
 
-            <div className="table-scroll" style={{ flex: 1, overflowY: 'auto', marginTop: '12px' }}>
+            <div ref={inpatientScrollRef} className="table-scroll" style={{ flex: 1, overflowY: 'auto', marginTop: '12px' }}>
               <table>
                 <thead>
                   <tr>
@@ -586,8 +691,14 @@ function App() {
     const queue = activeDoctor.queue || [];
 
     const servingPatient = queue.find(item => item.status === 'dilayani');
-    const waitingPatients = queue.filter(item => item.status === 'menunggu');
+    const sortedWaitingPatients = queue
+      .filter(item => item.status === 'menunggu')
+      .sort((a, b) => (a.queue_number || 0) - (b.queue_number || 0));
     const skippedPatients = queue.filter(item => item.status === 'terlewat');
+
+    const VISIBLE_LIMIT = 5;
+    const visibleWaitingPatients = sortedWaitingPatients.slice(0, VISIBLE_LIMIT);
+    const remainingWaitingCount = Math.max(0, sortedWaitingPatients.length - VISIBLE_LIMIT);
 
     return (
       <section className="poli-layout">
@@ -660,37 +771,45 @@ function App() {
           <div className="card table-card">
             <div className="table-card-head">
               <h2>Daftar Antrian Menunggu</h2>
-              <span className="count-pill">{waitingPatients.length} Pasien</span>
+              <span className="count-pill">{sortedWaitingPatients.length} Pasien</span>
             </div>
 
-            {waitingPatients.length === 0 ? (
+            {sortedWaitingPatients.length === 0 ? (
               <div className="empty-queue-state">
                 <Clock3 size={28} />
                 <p>Belum ada antrian menunggu untuk dokter ini.</p>
               </div>
             ) : (
-              <div className="table-scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      <th style={{ width: '100px' }}>No.</th>
-                      <th>Nama Pasien</th>
-                      <th style={{ textAlign: 'right' }}>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {waitingPatients.map((item) => (
-                      <tr key={`${item.queue_number}-${item.patient_name}`}>
-                        <td className="num">{item.queue_number}</td>
-                        <td className="name">{item.patient_name}</td>
-                        <td className="status">
-                          <span className="status-badge status-waiting">Menunggu</span>
-                        </td>
+              <>
+                <div className="table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th style={{ width: '100px' }}>No.</th>
+                        <th>Nama Pasien</th>
+                        <th style={{ textAlign: 'right' }}>Status</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {visibleWaitingPatients.map((item) => (
+                        <tr key={`${item.queue_number}-${item.patient_name}`}>
+                          <td className="num">{item.queue_number}</td>
+                          <td className="name">{item.patient_name}</td>
+                          <td className="status">
+                            <span className="status-badge status-waiting">Menunggu</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {remainingWaitingCount > 0 && (
+                  <div className="more-queue-banner">
+                    <span>+ {remainingWaitingCount} Pasien Lagi dalam Antrean</span>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
